@@ -1,12 +1,12 @@
 package lead.exchange.entity;
 
+import java.time.LocalDateTime;
+import java.util.Objects;
+import java.util.UUID;
 import lead.exchange.model.EstateAttributes;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
-import java.time.LocalDateTime;
-import java.util.Objects;
-import java.util.UUID;
 
 @Table("estates")
 public class Estate {
@@ -29,9 +29,8 @@ public class Estate {
     public Estate() {
     }
 
-    public Estate(UUID id, UUID userId, EstateAttributes attributes, Double totalCommissionRate,
+    public Estate(UUID userId, EstateAttributes attributes, Double totalCommissionRate,
                   Double commissionShare, String status, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.id = id;
         this.userId = userId;
         this.attributes = attributes;
         this.totalCommissionRate = totalCommissionRate;
@@ -110,27 +109,32 @@ public class Estate {
             return false;
         }
         Estate estate = (Estate) o;
-        return Objects.equals(id, estate.id) &&
-                Objects.equals(userId, estate.userId) &&
-                Objects.equals(attributes, estate.attributes) &&
-                Objects.equals(totalCommissionRate, estate.totalCommissionRate) &&
-                Objects.equals(commissionShare, estate.commissionShare) &&
-                Objects.equals(status, estate.status) &&
-                Objects.equals(createdAt, estate.createdAt) &&
-                Objects.equals(updatedAt, estate.updatedAt);
+        return Objects.equals(id, estate.id)
+                && Objects.equals(userId, estate.userId)
+                && Objects.equals(attributes, estate.attributes)
+                && Objects.equals(totalCommissionRate, estate.totalCommissionRate)
+                && Objects.equals(commissionShare, estate.commissionShare)
+                && Objects.equals(status, estate.status)
+                && Objects.equals(createdAt, estate.createdAt)
+                && Objects.equals(updatedAt, estate.updatedAt);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, userId, attributes, totalCommissionRate, commissionShare, status, createdAt, updatedAt);
     }
 
     @Override
     public String toString() {
-        return "Estate{" +
-                "id=" + id +
-                ", userId=" + userId +
-                ", attributes=" + attributes +
-                ", totalCommissionRate=" + totalCommissionRate +
-                ", commissionShare=" + commissionShare +
-                ", status='" + status + '\'' +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                '}';
+        return "Estate{"
+                + "id=" + id
+                + ", userId=" + userId
+                + ", attributes=" + attributes
+                + ", totalCommissionRate=" + totalCommissionRate
+                + ", commissionShare=" + commissionShare
+                + ", status='" + status + '\''
+                + ", createdAt=" + createdAt
+                + ", updatedAt=" + updatedAt
+                + '}';
     }
 }

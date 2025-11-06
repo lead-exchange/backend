@@ -1,12 +1,12 @@
 package lead.exchange.entity;
 
+import java.time.LocalDateTime;
+import java.util.Objects;
+import java.util.UUID;
 import lead.exchange.model.Requirements;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
-import java.time.LocalDateTime;
-import java.util.Objects;
-import java.util.UUID;
 
 @Table("leads")
 public class Lead {
@@ -99,25 +99,30 @@ public class Lead {
             return false;
         }
         Lead lead = (Lead) o;
-        return Objects.equals(id, lead.id) &&
-                Objects.equals(userId, lead.userId) &&
-                Objects.equals(requirements, lead.requirements) &&
-                Objects.equals(status, lead.status) &&
-                Objects.equals(commissionShare, lead.commissionShare) &&
-                Objects.equals(createdAt, lead.createdAt) &&
-                Objects.equals(updatedAt, lead.updatedAt);
+        return Objects.equals(id, lead.id)
+                && Objects.equals(userId, lead.userId)
+                && Objects.equals(requirements, lead.requirements)
+                && Objects.equals(status, lead.status)
+                && Objects.equals(commissionShare, lead.commissionShare)
+                && Objects.equals(createdAt, lead.createdAt)
+                && Objects.equals(updatedAt, lead.updatedAt);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, userId, requirements, status, commissionShare, createdAt, updatedAt);
     }
 
     @Override
     public String toString() {
-        return "Lead{" +
-                "id=" + id +
-                ", userId=" + userId +
-                ", requirements=" + requirements +
-                ", status='" + status + '\'' +
-                ", commissionShare=" + commissionShare +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                '}';
+        return "Lead{"
+                + "id=" + id
+                + ", userId=" + userId
+                + ", requirements=" + requirements
+                + ", status='" + status + '\''
+                + ", commissionShare=" + commissionShare
+                + ", createdAt=" + createdAt
+                + ", updatedAt=" + updatedAt
+                + '}';
     }
 }

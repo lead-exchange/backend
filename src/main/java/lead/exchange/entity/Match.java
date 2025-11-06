@@ -1,11 +1,11 @@
 package lead.exchange.entity;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.Table;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
 @Table("matches")
 public class Match {
@@ -76,21 +76,26 @@ public class Match {
             return false;
         }
         Match match = (Match) o;
-        return Objects.equals(id, match.id) &&
-                Objects.equals(leadId, match.leadId) &&
-                Objects.equals(estateId, match.estateId) &&
-                Objects.equals(status, match.status) &&
-                Objects.equals(matchedAt, match.matchedAt);
+        return Objects.equals(id, match.id)
+                && Objects.equals(leadId, match.leadId)
+                && Objects.equals(estateId, match.estateId)
+                && Objects.equals(status, match.status)
+                && Objects.equals(matchedAt, match.matchedAt);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, leadId, estateId, status, matchedAt);
     }
 
     @Override
     public String toString() {
-        return "Match{" +
-                "id=" + id +
-                ", leadId=" + leadId +
-                ", estateId=" + estateId +
-                ", status='" + status + '\'' +
-                ", matchedAt=" + matchedAt +
-                '}';
+        return "Match{"
+                + "id=" + id
+                + ", leadId=" + leadId
+                + ", estateId=" + estateId
+                + ", status='" + status + '\''
+                + ", matchedAt=" + matchedAt
+                + '}';
     }
 }

@@ -92,25 +92,30 @@ public class Requirements {
             return false;
         }
         Requirements that = (Requirements) o;
-        return Objects.equals(propertyType, that.propertyType) &&
-                Objects.equals(minPrice, that.minPrice) &&
-                Objects.equals(maxPrice, that.maxPrice) &&
-                Objects.equals(minArea, that.minArea) &&
-                Objects.equals(maxArea, that.maxArea) &&
-                Objects.equals(locations, that.locations) &&
-                Objects.equals(bedrooms, that.bedrooms);
+        return Objects.equals(propertyType, that.propertyType)
+                && Objects.equals(minPrice, that.minPrice)
+                && Objects.equals(maxPrice, that.maxPrice)
+                && Objects.equals(minArea, that.minArea)
+                && Objects.equals(maxArea, that.maxArea)
+                && Objects.equals(locations, that.locations)
+                && Objects.equals(bedrooms, that.bedrooms);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(propertyType, minPrice, maxPrice, minArea, maxArea, locations, bedrooms);
     }
 
     @Override
     public String toString() {
-        return "Requirements{" +
-                "propertyType='" + propertyType + '\'' +
-                ", minPrice=" + minPrice +
-                ", maxPrice=" + maxPrice +
-                ", minArea=" + minArea +
-                ", maxArea=" + maxArea +
-                ", locations=" + locations +
-                ", bedrooms=" + bedrooms +
-                '}';
+        return "Requirements{"
+                + "propertyType='" + propertyType + '\''
+                + ", minPrice=" + minPrice
+                + ", maxPrice=" + maxPrice
+                + ", minArea=" + minArea
+                + ", maxArea=" + maxArea
+                + ", locations=" + locations
+                + ", bedrooms=" + bedrooms
+                + '}';
     }
 }

@@ -92,25 +92,30 @@ public class EstateAttributes {
             return false;
         }
         EstateAttributes that = (EstateAttributes) o;
-        return Objects.equals(title, that.title) &&
-                Objects.equals(description, that.description) &&
-                Objects.equals(address, that.address) &&
-                Objects.equals(price, that.price) &&
-                Objects.equals(area, that.area) &&
-                Objects.equals(bedrooms, that.bedrooms) &&
-                Objects.equals(photos, that.photos);
+        return Objects.equals(title, that.title)
+                && Objects.equals(description, that.description)
+                && Objects.equals(address, that.address)
+                && Objects.equals(price, that.price)
+                && Objects.equals(area, that.area)
+                && Objects.equals(bedrooms, that.bedrooms)
+                && Objects.equals(photos, that.photos);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(title, description, address, price, area, bedrooms, photos);
     }
 
     @Override
     public String toString() {
-        return "EstateAttributes{" +
-                "title='" + title + '\'' +
-                ", description='" + description + '\'' +
-                ", address='" + address + '\'' +
-                ", price=" + price +
-                ", area=" + area +
-                ", bedrooms=" + bedrooms +
-                ", photos=" + photos +
-                '}';
+        return "EstateAttributes{"
+                + "title='" + title + '\''
+                + ", description='" + description + '\''
+                + ", address='" + address + '\''
+                + ", price=" + price
+                + ", area=" + area
+                + ", bedrooms=" + bedrooms
+                + ", photos=" + photos
+                + '}';
     }
 }

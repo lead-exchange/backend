@@ -2,6 +2,8 @@ package lead.exchange.config;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.sql.SQLException;
+import java.util.Arrays;
 import lead.exchange.model.EstateAttributes;
 import lead.exchange.model.Requirements;
 import org.postgresql.util.PGobject;
@@ -13,11 +15,11 @@ import org.springframework.data.convert.WritingConverter;
 import org.springframework.data.jdbc.core.convert.JdbcCustomConversions;
 import org.springframework.data.jdbc.repository.config.AbstractJdbcConfiguration;
 import org.springframework.stereotype.Component;
-import java.sql.SQLException;
-import java.util.Arrays;
 
 @Configuration
 public class JdbcConfig extends AbstractJdbcConfiguration {
+
+    private static String jsonbType = "jsonb";
 
     @Override
     public JdbcCustomConversions jdbcCustomConversions() {
@@ -44,7 +46,7 @@ public class JdbcConfig extends AbstractJdbcConfiguration {
         public PGobject convert(Requirements source) {
             try {
                 PGobject pgObject = new PGobject();
-                pgObject.setType("jsonb");
+                pgObject.setType(jsonbType);
                 pgObject.setValue(objectMapper.writeValueAsString(source));
                 return pgObject;
             } catch (JsonProcessingException | SQLException e) {
@@ -78,7 +80,7 @@ public class JdbcConfig extends AbstractJdbcConfiguration {
         public PGobject convert(EstateAttributes source) {
             try {
                 PGobject pgObject = new PGobject();
-                pgObject.setType("jsonb");
+                pgObject.setType(jsonbType);
                 pgObject.setValue(objectMapper.writeValueAsString(source));
                 return pgObject;
             } catch (JsonProcessingException | SQLException e) {

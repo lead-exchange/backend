@@ -1,10 +1,10 @@
 package lead.exchange.repository;
 
+import java.util.List;
+import java.util.UUID;
 import lead.exchange.entity.Match;
 import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.ListCrudRepository;
-import java.util.List;
-import java.util.UUID;
 
 public interface MatchRepository extends ListCrudRepository<Match, UUID> {
 

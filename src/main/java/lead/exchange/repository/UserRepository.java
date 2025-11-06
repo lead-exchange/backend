@@ -1,10 +1,10 @@
 package lead.exchange.repository;
 
+import java.util.Optional;
+import java.util.UUID;
 import lead.exchange.entity.User;
 import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.ListCrudRepository;
-import java.util.Optional;
-import java.util.UUID;
 
 public interface UserRepository extends ListCrudRepository<User, UUID> {
 

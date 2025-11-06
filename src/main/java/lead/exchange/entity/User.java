@@ -1,11 +1,11 @@
 package lead.exchange.entity;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.Table;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
 @Table("users")
 public class User {
@@ -91,11 +91,16 @@ public class User {
             return false;
         }
         User user = (User) o;
-        return Objects.equals(id, user.id) &&
-                Objects.equals(telegramId, user.telegramId) &&
-                Objects.equals(phone, user.phone) &&
-                Objects.equals(email, user.email) &&
-                Objects.equals(createdAt, user.createdAt) &&
-                Objects.equals(updatedAt, user.updatedAt);
+        return Objects.equals(id, user.id)
+                && Objects.equals(telegramId, user.telegramId)
+                && Objects.equals(phone, user.phone)
+                && Objects.equals(email, user.email)
+                && Objects.equals(createdAt, user.createdAt)
+                && Objects.equals(updatedAt, user.updatedAt);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, telegramId, phone, email, createdAt, updatedAt);
     }
 }
