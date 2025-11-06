@@ -1,6 +1,7 @@
 package lead.exchange.entity;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 import java.util.UUID;
 import org.springframework.data.annotation.Id;
@@ -64,7 +65,7 @@ public class Match {
     }
 
     public void setMatchedAt(LocalDateTime matchedAt) {
-        this.matchedAt = matchedAt;
+        this.matchedAt = matchedAt.truncatedTo(ChronoUnit.MICROS);
     }
 
     @Override

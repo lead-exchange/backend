@@ -1,6 +1,7 @@
 package lead.exchange.entity;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 import java.util.UUID;
 import lead.exchange.model.EstateAttributes;
@@ -89,7 +90,7 @@ public class Estate {
     }
 
     public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+        this.createdAt = createdAt.truncatedTo(ChronoUnit.MICROS);
     }
 
     public LocalDateTime getUpdatedAt() {
@@ -97,7 +98,7 @@ public class Estate {
     }
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
+        this.updatedAt = updatedAt.truncatedTo(ChronoUnit.MICROS);
     }
 
     @Override
