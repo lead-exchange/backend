@@ -3,6 +3,7 @@ package lead.exchange.repository;
 import lead.exchange.IntegrationTest;
 import lead.exchange.entity.Estate;
 import lead.exchange.entity.User;
+import lead.exchange.model.EstateStatus;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,7 +30,7 @@ class EstateRepositoryTest extends IntegrationTest {
 
         assertNotNull(estate.getId());
         assertEquals(user.getId(), estate.getUserId());
-        assertEquals("AVAILABLE", estate.getStatus());
+        assertEquals(EstateStatus.ACTIVE, estate.getStatus());
         assertNotNull(estate.getAttributes());
         assertEquals("Beautiful Apartment", estate.getAttributes().getTitle());
         assertEquals(150000.0, estate.getAttributes().getPrice());

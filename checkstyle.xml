@@ -71,6 +71,9 @@
 
 
     <module name="TreeWalker">
+        <module name="IllegalMethodCall">
+            <property name="illegalMethodNames" value="now" />
+        </module>
         <!-- https://checkstyle.org/config_javadoc.html -->
         <!--         Checks for Javadoc comments.       -->
         <!-- <module name="AtclauseOrder"/> -->

@@ -2,13 +2,21 @@ package lead.exchange.entity;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Objects;
 import java.util.UUID;
+import lead.exchange.model.LeadStatus;
 import lead.exchange.model.Requirements;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table("leads")
 public class Lead {
     @Id
@@ -17,7 +25,7 @@ public class Lead {
     @Column("user_id")
     private UUID userId;
     private Requirements requirements;
-    private String status;
+    private LeadStatus status;
     @Column("commission_share")
     private Double commissionShare;
     @Column("created_at")
@@ -25,105 +33,15 @@ public class Lead {
     @Column("updated_at")
     private LocalDateTime updatedAt;
 
-    public Lead() {
-    }
-
-    public Lead(UUID id, UUID userId, Requirements requirements, String status,
-                Double commissionShare, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.id = id;
-        this.userId = userId;
-        this.requirements = requirements;
-        this.status = status;
-        this.commissionShare = commissionShare;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public UUID getUserId() {
-        return userId;
-    }
-
-    public void setUserId(UUID userId) {
-        this.userId = userId;
-    }
-
-    public Requirements getRequirements() {
-        return requirements;
-    }
-
-    public void setRequirements(Requirements requirements) {
-        this.requirements = requirements;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public Double getCommissionShare() {
-        return commissionShare;
-    }
-
-    public void setCommissionShare(Double commissionShare) {
-        this.commissionShare = commissionShare;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt.truncatedTo(ChronoUnit.MICROS);
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt.truncatedTo(ChronoUnit.MICROS);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
+    public static class LeadBuilder {
+        public LeadBuilder createdAt(LocalDateTime timestamp) {
+            this.createdAt = timestamp.truncatedTo(ChronoUnit.MICROS);
+            return this;
         }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
+
+        public LeadBuilder updatedAt(LocalDateTime timestamp) {
+            this.updatedAt = timestamp.truncatedTo(ChronoUnit.MICROS);
+            return this;
         }
-        Lead lead = (Lead) o;
-        return Objects.equals(id, lead.id)
-                && Objects.equals(userId, lead.userId)
-                && Objects.equals(requirements, lead.requirements)
-                && Objects.equals(status, lead.status)
-                && Objects.equals(commissionShare, lead.commissionShare)
-                && Objects.equals(createdAt, lead.createdAt)
-                && Objects.equals(updatedAt, lead.updatedAt);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, userId, requirements, status, commissionShare, createdAt, updatedAt);
-    }
-
-    @Override
-    public String toString() {
-        return "Lead{"
-                + "id=" + id
-                + ", userId=" + userId
-                + ", requirements=" + requirements
-                + ", status='" + status + '\''
-                + ", commissionShare=" + commissionShare
-                + ", createdAt=" + createdAt
-                + ", updatedAt=" + updatedAt
-                + '}';
     }
 }

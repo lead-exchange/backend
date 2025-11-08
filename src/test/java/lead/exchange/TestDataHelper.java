@@ -5,6 +5,9 @@ import lead.exchange.entity.Lead;
 import lead.exchange.entity.Match;
 import lead.exchange.entity.User;
 import lead.exchange.model.EstateAttributes;
+import lead.exchange.model.EstateStatus;
+import lead.exchange.model.LeadStatus;
+import lead.exchange.model.MatchStatus;
 import lead.exchange.model.Requirements;
 import lead.exchange.repository.EstateRepository;
 import lead.exchange.repository.LeadRepository;
@@ -12,12 +15,18 @@ import lead.exchange.repository.MatchRepository;
 import lead.exchange.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.time.Clock;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 
 @Component
 public class TestDataHelper {
+
+    @Autowired
+    private Clock clock;
 
     @Autowired
     private UserRepository userRepository;
@@ -32,72 +41,88 @@ public class TestDataHelper {
     private MatchRepository matchRepository;
 
     public User createTestUser() {
-        User user = new User();
-        user.setTelegramId("test_user_" + UUID.randomUUID());
-        user.setEmail("test@example.com");
-        user.setPhone("+1234567890");
-        user.setCreatedAt(LocalDateTime.now());
-        user.setUpdatedAt(LocalDateTime.now());
-        return userRepository.save(user);
+        LocalDateTime now = LocalDateTime.now(clock);
+        return userRepository.save(
+                User.builder()
+                        .telegramId("test_user_" + UUID.randomUUID())
+                        .createdAt(now)
+                        .updatedAt(now)
+                        .build()
+        );
     }
 
     public User createTestUserWithTelegramId(String telegramId) {
-        User user = new User();
-        user.setTelegramId(telegramId);
-        user.setEmail("test@example.com");
-        user.setPhone("+1234567890");
-        user.setCreatedAt(LocalDateTime.now());
-        user.setUpdatedAt(LocalDateTime.now());
-        return userRepository.save(user);
+        LocalDateTime now = LocalDateTime.now(clock);
+        return userRepository.save(
+                User.builder()
+                        .telegramId(telegramId)
+                        .createdAt(now)
+                        .updatedAt(now)
+                        .build()
+        );
     }
 
     public Lead createTestLead(UUID userId) {
-        Requirements requirements = new Requirements();
-        requirements.setPropertyType("APARTMENT");
-        requirements.setMinPrice(100000.0);
-        requirements.setMaxPrice(200000.0);
-        requirements.setMinArea(50);
-        requirements.setMaxArea(100);
-        requirements.setBedrooms(2);
-        requirements.setLocations(List.of("City Center"));
+        Requirements requirements = Requirements.builder()
+                .propertyType("APARTMENT")
+                .minPrice(100000.0)
+                .maxPrice(200000.0)
+                .minArea(50)
+                .maxArea(100)
+                .bedrooms(2)
+                .locations(List.of("City Center"))
+                .build();
 
-        Lead lead = new Lead();
-        lead.setUserId(userId);
-        lead.setRequirements(requirements);
-        lead.setStatus("ACTIVE");
-        lead.setCommissionShare(50.0);
-        lead.setCreatedAt(LocalDateTime.now());
-        lead.setUpdatedAt(LocalDateTime.now());
-        return leadRepository.save(lead);
+        LocalDateTime now = LocalDateTime.now(clock);
+
+        return leadRepository.save(
+                Lead.builder()
+                        .userId(userId)
+                        .requirements(requirements)
+                        .status(LeadStatus.ACTIVE)
+                        .commissionShare(50.0)
+                        .createdAt(now)
+                        .updatedAt(now)
+                        .build()
+        );
     }
 
     public Estate createTestEstate(UUID userId) {
-        EstateAttributes attributes = new EstateAttributes();
-        attributes.setTitle("Beautiful Apartment");
-        attributes.setDescription("Spacious apartment in city center");
-        attributes.setAddress("123 Main St");
-        attributes.setPrice(150000.0);
-        attributes.setArea(75);
-        attributes.setBedrooms(2);
-        attributes.setPhotos(List.of("photo1.jpg", "photo2.jpg"));
+        EstateAttributes attributes = EstateAttributes.builder()
+                .title("Beautiful Apartment")
+                .description("Spacious apartment in city center")
+                .address("123 Main St")
+                .price(150000.0)
+                .area(75)
+                .bedrooms(2)
+                .photos(List.of("photo1.jpg", "photo2.jpg"))
+                .build();
 
-        Estate estate = new Estate();
-        estate.setUserId(userId);
-        estate.setAttributes(attributes);
-        estate.setTotalCommissionRate(5.0);
-        estate.setCommissionShare(50.0);
-        estate.setStatus("AVAILABLE");
-        estate.setCreatedAt(LocalDateTime.now());
-        estate.setUpdatedAt(LocalDateTime.now());
-        return estateRepository.save(estate);
+        LocalDateTime now = LocalDateTime.now(clock);
+
+        return estateRepository.save(
+                Estate.builder()
+                        .userId(userId)
+                        .attributes(attributes)
+                        .totalCommissionRate(5.0)
+                        .commissionShare(50.0)
+                        .status(EstateStatus.ACTIVE)
+                        .createdAt(now)
+                        .updatedAt(now)
+                        .build()
+        );
     }
 
     public Match createTestMatch(UUID leadId, UUID estateId) {
-        Match match = new Match();
-        match.setLeadId(leadId);
-        match.setEstateId(estateId);
-        match.setStatus("PENDING");
-        match.setMatchedAt(LocalDateTime.now());
-        return matchRepository.save(match);
+        LocalDateTime now = LocalDateTime.now(clock);
+
+        return matchRepository.save(
+                Match.builder()
+                        .leadId(leadId)
+                        .estateId(estateId)
+                        .status(MatchStatus.PENDING)
+                        .matchedAt(now)
+                        .build()
+        );
     }
 }

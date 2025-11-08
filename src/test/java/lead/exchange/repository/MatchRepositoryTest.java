@@ -5,6 +5,7 @@ import lead.exchange.entity.Estate;
 import lead.exchange.entity.Lead;
 import lead.exchange.entity.Match;
 import lead.exchange.entity.User;
+import lead.exchange.model.MatchStatus;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -36,7 +37,7 @@ class MatchRepositoryTest extends IntegrationTest {
         assertNotNull(match.getId());
         assertEquals(lead.getId(), match.getLeadId());
         assertEquals(estate.getId(), match.getEstateId());
-        assertEquals("PENDING", match.getStatus());
+        assertEquals(MatchStatus.PENDING, match.getStatus());
     }
 
     @Test
