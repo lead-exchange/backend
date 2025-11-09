@@ -1,6 +1,6 @@
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    telegram_id VARCHAR(255),
+    telegram_id VARCHAR(255) NOT NULL UNIQUE,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL
 );
@@ -31,5 +31,6 @@ CREATE TABLE matches (
     lead_id UUID NOT NULL REFERENCES leads(id) ON DELETE CASCADE,
     estate_id UUID NOT NULL REFERENCES estates(id) ON DELETE CASCADE,
     status VARCHAR(50) NOT NULL,
-    matched_at TIMESTAMP NOT NULL
+    matched_at TIMESTAMP NOT NULL,
+    UNIQUE (lead_id, estate_id)
 );

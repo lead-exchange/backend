@@ -38,7 +38,7 @@ public class JdbcConfig extends AbstractJdbcConfiguration {
 
     @Component
     @WritingConverter
-    public class RequirementsWriteConverter implements Converter<Requirements, PGobject> {
+    public static class RequirementsWriteConverter implements Converter<Requirements, PGobject> {
 
         private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -57,7 +57,7 @@ public class JdbcConfig extends AbstractJdbcConfiguration {
 
     @Component
     @ReadingConverter
-    public class RequirementsReadConverter implements Converter<PGobject, Requirements> {
+    public static class RequirementsReadConverter implements Converter<PGobject, Requirements> {
 
         private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -72,7 +72,7 @@ public class JdbcConfig extends AbstractJdbcConfiguration {
     }
 
     @WritingConverter
-    public class EstateAttributesWriteConverter implements Converter<EstateAttributes, PGobject> {
+    public static class EstateAttributesWriteConverter implements Converter<EstateAttributes, PGobject> {
 
         private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -90,7 +90,7 @@ public class JdbcConfig extends AbstractJdbcConfiguration {
     }
 
     @ReadingConverter
-    public class EstateAttributesReadConverter implements Converter<PGobject, EstateAttributes> {
+    public static class EstateAttributesReadConverter implements Converter<PGobject, EstateAttributes> {
 
         private final ObjectMapper objectMapper = new ObjectMapper();
 

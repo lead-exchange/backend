@@ -4,6 +4,7 @@ import lead.exchange.IntegrationTest;
 import lead.exchange.entity.Estate;
 import lead.exchange.entity.User;
 import lead.exchange.model.EstateStatus;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,15 +22,21 @@ class EstateRepositoryTest extends IntegrationTest {
     @Autowired
     private EstateRepository estateRepository;
 
+    private User testUser;
+
+    @BeforeEach
+    void setUp() {
+        testUser = testData.createTestUser();
+    }
+
     @Test
     @Rollback
     @Transactional
     void save_shouldSaveEstateWithAttributes() {
-        User user = testData.createTestUser();
-        Estate estate = testData.createTestEstate(user.getId());
+        Estate estate = testData.createTestEstate(testUser.getId());
 
         assertNotNull(estate.getId());
-        assertEquals(user.getId(), estate.getUserId());
+        assertEquals(testUser.getId(), estate.getUserId());
         assertEquals(EstateStatus.ACTIVE, estate.getStatus());
         assertNotNull(estate.getAttributes());
         assertEquals("Beautiful Apartment", estate.getAttributes().getTitle());
@@ -40,8 +47,7 @@ class EstateRepositoryTest extends IntegrationTest {
     @Rollback
     @Transactional
     void findById_shouldReturnEstate() {
-        User user = testData.createTestUser();
-        Estate estate = testData.createTestEstate(user.getId());
+        Estate estate = testData.createTestEstate(testUser.getId());
 
         Optional<Estate> found = estateRepository.findById(estate.getId());
 
@@ -53,13 +59,12 @@ class EstateRepositoryTest extends IntegrationTest {
     @Rollback
     @Transactional
     void findByUserId_shouldReturnUserEstates() {
-        User user = testData.createTestUser();
-        testData.createTestEstate(user.getId());
-        testData.createTestEstate(user.getId());
+        testData.createTestEstate(testUser.getId());
+        testData.createTestEstate(testUser.getId());
 
-        List<Estate> estates = estateRepository.findByUserId(user.getId());
+        List<Estate> estates = estateRepository.findByUserId(testUser.getId());
 
         assertEquals(2, estates.size());
-        estates.forEach(estate -> assertEquals(user.getId(), estate.getUserId()));
+        estates.forEach(estate -> assertEquals(testUser.getId(), estate.getUserId()));
     }
 }

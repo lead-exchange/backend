@@ -11,9 +11,11 @@ public class PostgresTestContainer extends PostgreSQLContainer<PostgresTestConta
     }
 
     public static PostgresTestContainer getInstance() {
-        if (container == null) {
-            container = new PostgresTestContainer();
-            container.start();
+        synchronized (PostgresTestContainer.class) {
+            if (container == null) {
+                container = new PostgresTestContainer();
+                container.start();
+            }
         }
         return container;
     }

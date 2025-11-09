@@ -6,6 +6,7 @@ import lead.exchange.entity.Lead;
 import lead.exchange.entity.Match;
 import lead.exchange.entity.User;
 import lead.exchange.model.MatchStatus;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,66 +25,57 @@ class MatchRepositoryTest extends IntegrationTest {
     @Autowired
     private MatchRepository matchRepository;
 
+    private Lead testLead;
+    private Estate testEstate;
+    private Match testMatch;
+
+    @BeforeEach
+    void setUp() {
+        User testUser = testData.createTestUser();
+        testLead= testData.createTestLead(testUser.getId());
+        testEstate = testData.createTestEstate(testUser.getId());
+        testMatch = testData.createTestMatch(testLead.getId(), testEstate.getId());
+    }
+
     @Test
     @Rollback
     @Transactional
     void save_shouldSaveMatch() {
-        User user = testData.createTestUser();
-        Lead lead = testData.createTestLead(user.getId());
-        Estate estate = testData.createTestEstate(user.getId());
-
-        Match match = testData.createTestMatch(lead.getId(), estate.getId());
-
-        assertNotNull(match.getId());
-        assertEquals(lead.getId(), match.getLeadId());
-        assertEquals(estate.getId(), match.getEstateId());
-        assertEquals(MatchStatus.PENDING, match.getStatus());
+        assertNotNull(testMatch.getId());
+        assertEquals(testLead.getId(), testMatch.getLeadId());
+        assertEquals(testEstate.getId(), testMatch.getEstateId());
+        assertEquals(MatchStatus.PENDING, testMatch.getStatus());
     }
 
     @Test
     @Rollback
     @Transactional
     void findById_shouldReturnMatch() {
-        User user = testData.createTestUser();
-        Lead lead = testData.createTestLead(user.getId());
-        Estate estate = testData.createTestEstate(user.getId());
-        Match match = testData.createTestMatch(lead.getId(), estate.getId());
-
-        Optional<Match> found = matchRepository.findById(match.getId());
+        Optional<Match> found = matchRepository.findById(testMatch.getId());
 
         assertTrue(found.isPresent());
-        assertEquals(match, found.get());
+        assertEquals(testMatch, found.get());
     }
 
     @Test
     @Rollback
     @Transactional
     void findByLeadId_shouldReturnMatches() {
-        User user = testData.createTestUser();
-        Lead lead = testData.createTestLead(user.getId());
-        Estate estate = testData.createTestEstate(user.getId());
-        Match match = testData.createTestMatch(lead.getId(), estate.getId());
-
-        List<Match> matches = matchRepository.findByLeadId(lead.getId());
+        List<Match> matches = matchRepository.findByLeadId(testLead.getId());
 
         assertFalse(matches.isEmpty());
         assertEquals(1, matches.size());
-        assertEquals(match, matches.getFirst());
+        assertEquals(testMatch, matches.getFirst());
     }
 
     @Test
     @Rollback
     @Transactional
     void findByEstateId_shouldReturnMatches() {
-        User user = testData.createTestUser();
-        Lead lead = testData.createTestLead(user.getId());
-        Estate estate = testData.createTestEstate(user.getId());
-        Match match = testData.createTestMatch(lead.getId(), estate.getId());
-
-        List<Match> matches = matchRepository.findByEstateId(estate.getId());
+        List<Match> matches = matchRepository.findByEstateId(testEstate.getId());
 
         assertFalse(matches.isEmpty());
         assertEquals(1, matches.size());
-        assertEquals(match, matches.getFirst());
+        assertEquals(testMatch, matches.getFirst());
     }
 }
