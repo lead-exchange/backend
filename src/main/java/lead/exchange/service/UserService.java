@@ -16,10 +16,16 @@ public class UserService {
     }
 
     public User getUserByTelegramId(String telegramId) {
-        return userRepository.findByTelegramId(telegramId).orElseThrow(()-> new ResourceNotFoundException("User not found with telegramId: " + telegramId));
+        return userRepository.findByTelegramId(telegramId).
+                orElseThrow(() -> new ResourceNotFoundException(
+                        "User not found with telegramId: " + telegramId
+                ));
     }
 
     public void checkUserExistByUserid(UUID userId) {
-        userRepository.findByUserId(userId).orElseThrow(()-> new ResourceNotFoundException("User not found with userId: " + userId));
+        userRepository.findByUserId(userId).
+                orElseThrow(() -> new ResourceNotFoundException(
+                        "User not found with userId: " + userId
+                ));
     }
 }
