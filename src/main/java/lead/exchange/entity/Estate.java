@@ -1,5 +1,6 @@
 package lead.exchange.entity;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
@@ -31,19 +32,19 @@ public class Estate {
     private Double commissionShare;
     private EstateStatus status;
     @Column("created_at")
-    private LocalDateTime createdAt;
+    private Timestamp createdAt;
     @Column("updated_at")
-    private LocalDateTime updatedAt;
+    private Timestamp updatedAt;
 
-    public static class EstateBuilder {
-        public EstateBuilder createdAt(LocalDateTime timestamp) {
-            this.createdAt = timestamp.truncatedTo(ChronoUnit.MICROS);
-            return this;
-        }
-
-        public EstateBuilder updatedAt(LocalDateTime timestamp) {
-            this.updatedAt = timestamp.truncatedTo(ChronoUnit.MICROS);
-            return this;
-        }
-    }
+//    public static class EstateBuilder {
+//        public EstateBuilder createdAt(LocalDateTime timestamp) {
+//            this.createdAt = timestamp.truncatedTo(ChronoUnit.MICROS);
+//            return this;
+//        }
+//
+//        public EstateBuilder updatedAt(LocalDateTime timestamp) {
+//            this.updatedAt = timestamp.truncatedTo(ChronoUnit.MICROS);
+//            return this;
+//        }
+//    }
 }

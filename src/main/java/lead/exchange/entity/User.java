@@ -1,8 +1,10 @@
 package lead.exchange.entity;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,19 +25,19 @@ public class User {
     @Column("telegram_id")
     private String telegramId;
     @Column("created_at")
-    private LocalDateTime createdAt;
+    private Timestamp createdAt;
     @Column("updated_at")
-    private LocalDateTime updatedAt;
+    private Timestamp updatedAt;
 
-    public static class UserBuilder {
-        public UserBuilder createdAt(LocalDateTime timestamp) {
-            this.createdAt = timestamp.truncatedTo(ChronoUnit.MICROS);
-            return this;
-        }
-
-        public UserBuilder updatedAt(LocalDateTime timestamp) {
-            this.updatedAt = timestamp.truncatedTo(ChronoUnit.MICROS);
-            return this;
-        }
-    }
+//    public static class UserBuilder {
+//        public UserBuilder createdAt(LocalDateTime timestamp) {
+//            this.createdAt = timestamp.truncatedTo(ChronoUnit.MICROS);
+//            return this;
+//        }
+//
+//        public UserBuilder updatedAt(LocalDateTime timestamp) {
+//            this.updatedAt = timestamp.truncatedTo(ChronoUnit.MICROS);
+//            return this;
+//        }
+//    }
 }
