@@ -14,7 +14,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/users/{telegramId}")
-    public ResponseEntity<User> getUserByTelegramId(@PathVariable String telegramId){
+    public ResponseEntity<User> getUserByTelegramId(@PathVariable String telegramId) {
         return ResponseEntity.ok(userService.getUserByTelegramId(telegramId));
     }
 }
