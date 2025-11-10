@@ -21,7 +21,7 @@ jobs:
           java-version: '21'
 
       - name: Build with Maven
-        run: mvn -f backend/pom.xml clean package -DskipTests
+        run: mvn -f pom.xml clean package -DskipTests
 
       - name: Copy JAR to server
         uses: appleboy/scp-action@v0.1.7
@@ -29,8 +29,8 @@ jobs:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          source: "backend/target/backend.jar"
-          target: "/home/${{ secrets.SERVER_USER }}/backend.jar"
+          source: "/target/backend.jar"
+          target: "/home/${{ secrets.SERVER_USER }}/backend/backend.jar"
 
       - name: Restart Spring Boot service
         uses: appleboy/ssh-action@v1.1.0
