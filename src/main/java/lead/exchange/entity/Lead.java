@@ -1,8 +1,6 @@
 package lead.exchange.entity;
 
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 import lead.exchange.model.LeadStatus;
 import lead.exchange.model.Requirements;
