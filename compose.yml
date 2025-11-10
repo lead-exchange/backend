@@ -4,7 +4,7 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_DB: scrapper
+      POSTGRES_DB: lead_exchange
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     volumes:
