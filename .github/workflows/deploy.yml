@@ -30,7 +30,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           source: "target/backend.jar"
-          target: "/home/${{ secrets.SERVER_USER }}/backend/backend.jar"
+          target: "/home/${{ secrets.SERVER_USER }}/backend.jar"
 
       - name: Restart Spring Boot service
         uses: appleboy/ssh-action@v1.1.0
