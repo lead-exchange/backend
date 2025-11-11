@@ -7,7 +7,6 @@ import java.util.Arrays;
 import lead.exchange.model.EstateAttributes;
 import lead.exchange.model.Requirements;
 import org.postgresql.util.PGobject;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.convert.ReadingConverter;
@@ -19,7 +18,7 @@ import org.springframework.stereotype.Component;
 @Configuration
 public class JdbcConfig extends AbstractJdbcConfiguration {
 
-    private static String jsonbType = "jsonb";
+    private static final String jsonbType = "jsonb";
 
     @Override
     public JdbcCustomConversions jdbcCustomConversions() {
@@ -31,10 +30,6 @@ public class JdbcConfig extends AbstractJdbcConfiguration {
         ));
     }
 
-    @Bean
-    public ObjectMapper objectMapper() {
-        return new ObjectMapper();
-    }
 
     @Component
     @WritingConverter
