@@ -5,7 +5,6 @@ import lead.exchange.entity.User;
 import lead.exchange.exception.ResourceNotFoundException;
 import lead.exchange.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
