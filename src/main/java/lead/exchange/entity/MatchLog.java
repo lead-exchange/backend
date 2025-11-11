@@ -1,6 +1,5 @@
 package lead.exchange.entity;
 
-
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
@@ -16,17 +15,16 @@ import org.springframework.data.relational.core.mapping.Table;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table("matches")
-public class Match {
+@Table("matches_log")
+public class MatchLog {
     @Id
     @Column("id")
     private UUID id;
 
-    @Column("lead_id")
-    private UUID leadId;
+    @Column("match_id")
+    private UUID matchId;
 
-    @Column("estate_id")
-    private UUID estateId;
+    private String status;
 
     @Column("lead_commission")
     private Double leadCommission;
@@ -36,35 +34,13 @@ public class Match {
 
     private String comment;
 
-    @Column("lead_status")
-    private String leadStatus;
-
-    @Column("estate_status")
-    private String estateStatus;
-
-    @Column("matched_at")
-    private LocalDateTime matchedAt;
-
     @Column("created_at")
     private LocalDateTime createdAt;
 
-    @Column("updated_at")
-    private LocalDateTime updatedAt;
+    public static class MatchLogBuilder {
 
-    public static class MatchBuilder {
-
-        public MatchBuilder matchedAt(LocalDateTime timestamp) {
-            this.matchedAt = timestamp.truncatedTo(ChronoUnit.MICROS);
-            return this;
-        }
-
-        public MatchBuilder createdAt(LocalDateTime timestamp) {
+        public MatchLogBuilder createdAt(LocalDateTime timestamp) {
             this.createdAt = timestamp.truncatedTo(ChronoUnit.MICROS);
-            return this;
-        }
-
-        public MatchBuilder updatedAt(LocalDateTime timestamp) {
-            this.updatedAt = timestamp.truncatedTo(ChronoUnit.MICROS);
             return this;
         }
     }
