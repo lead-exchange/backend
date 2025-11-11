@@ -1,5 +1,6 @@
 package lead.exchange.controller;
 
+import lead.exchange.dto.MatchDto;
 import lead.exchange.entity.Match;
 import lead.exchange.service.MatchService;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +18,8 @@ public class MatchController {
     private final MatchService matchService;
 
     @PutMapping
-    public ResponseEntity<Match> createMatch(@RequestBody Match match) {
-        Match createdMatch = matchService.createMatch(match);
+    public ResponseEntity<Match> createMatch(@RequestBody MatchDto matchDto) {
+        Match createdMatch = matchService.createMatch(matchDto);
         return ResponseEntity.ok(createdMatch);
     }
 
