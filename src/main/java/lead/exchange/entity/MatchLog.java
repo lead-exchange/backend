@@ -3,6 +3,8 @@ package lead.exchange.entity;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
+
+import lead.exchange.model.MatchStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,7 +26,7 @@ public class MatchLog {
     @Column("match_id")
     private UUID matchId;
 
-    private String status;
+    private MatchStatus status;
 
     @Column("lead_commission")
     private Double leadCommission;
@@ -36,12 +38,4 @@ public class MatchLog {
 
     @Column("created_at")
     private LocalDateTime createdAt;
-
-    public static class MatchLogBuilder {
-
-        public MatchLogBuilder createdAt(LocalDateTime timestamp) {
-            this.createdAt = timestamp.truncatedTo(ChronoUnit.MICROS);
-            return this;
-        }
-    }
 }
