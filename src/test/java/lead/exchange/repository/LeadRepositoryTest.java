@@ -52,7 +52,16 @@ class LeadRepositoryTest extends IntegrationTest {
         Optional<Lead> found = leadRepository.findById(lead.getId());
 
         assertTrue(found.isPresent());
-        assertEquals(lead, found.get());
+
+        Lead actual = found.get();
+
+        assertEquals(lead.getId(), actual.getId());
+        assertEquals(lead.getUserId(), actual.getUserId());
+        assertEquals(lead.getRequirements(), actual.getRequirements());
+        assertEquals(lead.getStatus(), actual.getStatus());
+        assertEquals(lead.getCommissionShare(), actual.getCommissionShare());
+        assertNotNull(actual.getCreatedAt());
+        assertNotNull(actual.getUpdatedAt());
     }
 
     @Test

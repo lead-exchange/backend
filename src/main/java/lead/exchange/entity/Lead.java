@@ -34,6 +34,7 @@ public class Lead {
     private LocalDateTime updatedAt;
 
     public static class LeadBuilder {
+
         public LeadBuilder createdAt(LocalDateTime timestamp) {
             this.createdAt = timestamp.truncatedTo(ChronoUnit.MICROS);
             return this;

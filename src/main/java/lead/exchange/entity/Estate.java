@@ -36,6 +36,7 @@ public class Estate {
     private LocalDateTime updatedAt;
 
     public static class EstateBuilder {
+
         public EstateBuilder createdAt(LocalDateTime timestamp) {
             this.createdAt = timestamp.truncatedTo(ChronoUnit.MICROS);
             return this;

@@ -28,6 +28,7 @@ public class User {
     private LocalDateTime updatedAt;
 
     public static class UserBuilder {
+
         public UserBuilder createdAt(LocalDateTime timestamp) {
             this.createdAt = timestamp.truncatedTo(ChronoUnit.MICROS);
             return this;

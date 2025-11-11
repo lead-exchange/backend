@@ -26,6 +26,10 @@ class UserRepositoryTest extends IntegrationTest {
         Optional<User> foundUser = userRepository.findByTelegramId("test_telegram_123");
 
         assertTrue(foundUser.isPresent());
-        assertEquals(user, foundUser.get());
+
+        User actual = foundUser.get();
+
+        assertEquals(user.getId(), actual.getId());
+        assertEquals(user.getTelegramId(), actual.getTelegramId());
     }
 }

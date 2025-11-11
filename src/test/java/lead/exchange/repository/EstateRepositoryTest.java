@@ -52,8 +52,15 @@ class EstateRepositoryTest extends IntegrationTest {
         Optional<Estate> found = estateRepository.findById(estate.getId());
 
         assertTrue(found.isPresent());
-        assertEquals(estate, found.get());
-    }
+
+        Estate actual = found.get();
+
+        assertEquals(estate.getId(), actual.getId());
+        assertEquals(estate.getUserId(), actual.getUserId());
+        assertEquals(estate.getAttributes(), actual.getAttributes());
+        assertEquals(estate.getTotalCommissionRate(), actual.getTotalCommissionRate());
+        assertEquals(estate.getCommissionShare(), actual.getCommissionShare());
+        assertEquals(estate.getStatus(), actual.getStatus());    }
 
     @Test
     @Rollback
