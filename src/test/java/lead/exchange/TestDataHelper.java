@@ -16,10 +16,9 @@ import lead.exchange.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.sql.Timestamp;
+
 import java.time.Clock;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 
@@ -46,8 +45,8 @@ public class TestDataHelper {
         return userRepository.save(
                 User.builder()
                         .telegramId("test_user_" + UUID.randomUUID())
-                        .createdAt(Timestamp.valueOf(now))
-                        .updatedAt(Timestamp.valueOf(now))
+                        .createdAt(now)
+                        .updatedAt(now)
                         .build()
         );
     }
@@ -57,8 +56,8 @@ public class TestDataHelper {
         return userRepository.save(
                 User.builder()
                         .telegramId(telegramId)
-                        .createdAt(Timestamp.valueOf(now))
-                        .updatedAt(Timestamp.valueOf(now))
+                        .createdAt(now)
+                        .updatedAt(now)
                         .build()
         );
     }
@@ -82,8 +81,8 @@ public class TestDataHelper {
                         .requirements(requirements)
                         .status(LeadStatus.ACTIVE)
                         .commissionShare(50.0)
-                        .createdAt(Timestamp.valueOf(now))
-                        .updatedAt(Timestamp.valueOf(now))
+                        .createdAt(now)
+                        .updatedAt(now)
                         .build()
         );
     }
@@ -108,8 +107,8 @@ public class TestDataHelper {
                         .totalCommissionRate(5.0)
                         .commissionShare(50.0)
                         .status(EstateStatus.ACTIVE)
-                        .createdAt(Timestamp.valueOf(now))
-                        .updatedAt(Timestamp.valueOf(now))
+                        .createdAt(now)
+                        .updatedAt(now)
                         .build()
         );
     }
