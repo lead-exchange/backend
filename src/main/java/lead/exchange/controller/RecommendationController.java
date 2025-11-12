@@ -26,4 +26,14 @@ public class RecommendationController {
     public ResponseEntity<List<Lead>> getRecommendationsForEstate(@PathVariable UUID estateId) {
         return ResponseEntity.ok(recommendationService.getRecosByEstateId(estateId));
     }
+
+    @GetMapping("/recommendations/initiateRecomms")
+    public boolean getRecommendationsInitiateRecomms() {
+        try {
+            recommendationService.initiateRecommendations();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }

@@ -9,9 +9,9 @@ import org.springframework.data.repository.ListCrudRepository;
 import lead.exchange.entity.Recommendation;
 
 public interface RecommendationsRepository extends ListCrudRepository<Recommendation, UUID>{
-    @Query("SELECT * FROM recommendations WHERE source_id = :id AND source_type = \"lead\" ORDER BY similarity_score DESC LIMIT 10")
+    @Query("SELECT * FROM recommendations WHERE source_id = :id ORDER BY similarity_score DESC LIMIT 10")
     List<Recommendation> getListForLead(UUID id);
 
-    @Query("SELECT * FROM recommendations WHERE source_id = :id AND source_type = \"estate\" ORDER BY similarity_score DESC LIMIT 10")
+    @Query("SELECT * FROM recommendations WHERE target_id = :id ORDER BY similarity_score DESC LIMIT 10")
     List<Recommendation> getListForEstate(UUID id);
 }
