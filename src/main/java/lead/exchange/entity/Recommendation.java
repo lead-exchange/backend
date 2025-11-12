@@ -26,7 +26,7 @@ public class Recommendation {
     @Column("target_id")
     private UUID targetId;
     @Column("similarity_score")
-    private double score;
+    private Double score;
     @Column("similarity_reason")
     private String reason;
 }
