@@ -1,7 +1,7 @@
 package lead.exchange.model;
 
 public record ScoreCalculationResult(
-        int score,
+        double score,
         String reason
 ) {
 }

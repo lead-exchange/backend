@@ -159,7 +159,7 @@ public class RecommendationService {
             }
         }
 
-        int normalizedScore = (int) ( totalWeight > 0 ? Math.round((score / totalWeight) * 100.0) / 100.0 : 0.0);
+        double normalizedScore = totalWeight > 0 ? Math.round((score / totalWeight) * 100.0) / 100.0 : 0.0;
         return new ScoreCalculationResult(normalizedScore, maxSimilarityAttribute);
     }
 }
