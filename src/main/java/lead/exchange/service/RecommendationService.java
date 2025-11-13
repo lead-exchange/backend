@@ -55,6 +55,7 @@ public class RecommendationService {
                 .toList();
 
         List<Lead> leads = leadRepository.findAllById(leadIds);
+        leads.forEach(lead -> {lead.setName("not accessed from recommender");});
 
         Map<UUID, Lead> leadMap = leads.stream()
                 .collect(Collectors.toMap(Lead::getId, l -> l));

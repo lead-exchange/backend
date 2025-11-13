@@ -24,6 +24,8 @@ public class Lead {
     private UUID id;
     @Column("user_id")
     private UUID userId;
+    @Column("name")
+    private String name;
     private Requirements requirements;
     private LeadStatus status;
     @Column("commission_share")
