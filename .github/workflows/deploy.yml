@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - feature/cors
+      - feature/37
 
 jobs:
   deploy:
