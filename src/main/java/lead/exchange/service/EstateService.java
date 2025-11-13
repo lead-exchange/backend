@@ -17,4 +17,7 @@ public class EstateService {
         userService.checkUserExistByUserid(userId);
         return estateRepository.findByUserId(userId);
     }
+    public List<Estate> getAllEstate(){
+        return estateRepository.findAll();
+    }
 }
