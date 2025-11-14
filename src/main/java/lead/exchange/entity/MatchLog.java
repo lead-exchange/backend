@@ -1,5 +1,9 @@
 package lead.exchange.entity;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.UUID;
+
 import lead.exchange.model.MatchStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,24 +13,20 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table("matches")
-public class Match {
+@Table("matches_log")
+public class MatchLog {
     @Id
     @Column("id")
     private UUID id;
 
-    @Column("lead_id")
-    private UUID leadId;
+    @Column("match_id")
+    private UUID matchId;
 
-    @Column("estate_id")
-    private UUID estateId;
+    private MatchStatus status;
 
     @Column("lead_commission")
     private Double leadCommission;
@@ -34,21 +34,8 @@ public class Match {
     @Column("updated_by")
     private UUID updatedBy;
 
-    @Column("comment")
     private String comment;
-
-    @Column("lead_status")
-    private MatchStatus leadStatus;
-
-    @Column("estate_status")
-    private MatchStatus estateStatus;
-
-    @Column("matched_at")
-    private LocalDateTime matchedAt;
 
     @Column("created_at")
     private LocalDateTime createdAt;
-
-    @Column("updated_at")
-    private LocalDateTime updatedAt;
 }
