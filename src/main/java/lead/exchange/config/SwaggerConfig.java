@@ -11,17 +11,11 @@ import org.springframework.context.annotation.Configuration;
         version = "v1",
         description = """
             branch: ${git.branch}
-            
             commit message: ${git.commit.message.full}
-            
             commit user: ${git.commit.user.name}
-            
             commit hash: ${git.commit.id}
-            
             commit time: ${git.commit.time}
-            
             build time: ${git.build.time}
-            
             """
     )
 )
