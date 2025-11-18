@@ -83,6 +83,7 @@ public class TestDataHelper {
                         .commissionShare(50.0)
                         .createdAt(now)
                         .updatedAt(now)
+                        .name(userId.toString())
                         .build()
         );
     }
