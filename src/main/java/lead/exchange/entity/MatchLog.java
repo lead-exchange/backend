@@ -1,7 +1,6 @@
 package lead.exchange.entity;
 
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 import lead.exchange.model.MatchStatus;
@@ -33,6 +32,8 @@ public class MatchLog {
 
     @Column("updated_by")
     private UUID updatedBy;
+
+    private String userType;
 
     private String comment;
 

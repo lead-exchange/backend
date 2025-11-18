@@ -22,5 +22,6 @@ CREATE TABLE IF NOT EXISTS matches_log (
     lead_commission DECIMAL(5,2) NOT NULL,
     updated_by UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     comment TEXT,
+    user_type text not null,
     created_at TIMESTAMP NOT NULL
     );

@@ -1,5 +1,6 @@
 package lead.exchange.service;
 
+import java.time.Clock;
 import lead.exchange.entity.MatchLog;
 import lead.exchange.repository.MatchLogRepository;
 import lombok.RequiredArgsConstructor;
@@ -8,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -17,13 +17,14 @@ import java.util.UUID;
 public class MatchLogService {
 
     private final MatchLogRepository matchLogRepository;
+    private final Clock clock;
 
     public MatchLog createMatchLog(MatchLog matchLog) {
         log.info("Creating match log for match: {}", matchLog.getMatchId());
 
         // Set timestamp if not provided
         if (matchLog.getCreatedAt() == null) {
-            matchLog.setCreatedAt(LocalDateTime.now());
+            matchLog.setCreatedAt(LocalDateTime.now(clock));
         }
 
         return matchLogRepository.save(matchLog);

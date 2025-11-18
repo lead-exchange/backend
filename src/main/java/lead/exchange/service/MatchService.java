@@ -1,22 +1,19 @@
 package lead.exchange.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
 import lead.exchange.dto.MatchDto;
 import lead.exchange.dto.UserType;
 import lead.exchange.entity.Match;
 import lead.exchange.entity.MatchLog;
 import lead.exchange.mapper.MatchMapper;
 import lead.exchange.model.MatchStatus;
-import lead.exchange.repository.EstateRepository;
-import lead.exchange.repository.LeadRepository;
 import lead.exchange.repository.MatchRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -48,8 +45,9 @@ public class MatchService {
 
         MatchStatus logStatus = resolveLogStatus(match, dto.userType());
 
+
         Match saved = matchRepository.save(match);
-        matchLogService.createMatchLog(buildLog(saved, logStatus, now));
+        matchLogService.createMatchLog(buildLog(saved, logStatus, now, dto.userType()));
 
         return saved;
     }
@@ -60,7 +58,7 @@ public class MatchService {
         if (match.getMatchedAt() == null) match.setMatchedAt(now);
     }
 
-    private static MatchLog buildLog(Match match, MatchStatus status, LocalDateTime now) {
+    private static MatchLog buildLog(Match match, MatchStatus status, LocalDateTime now, UserType userType) {
         return MatchLog.builder()
                 .matchId(match.getId())
                 .status(status)
@@ -68,6 +66,7 @@ public class MatchService {
                 .updatedBy(match.getUpdatedBy())
                 .comment(match.getComment())
                 .createdAt(now)
+                .userType(userType.name())
                 .build();
     }
 
