@@ -1,15 +1,14 @@
 package lead.exchange.service;
 
 import java.time.Clock;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
 import lead.exchange.entity.MatchLog;
 import lead.exchange.repository.MatchLogRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
 
 @Slf4j
 @Service

@@ -1,9 +1,8 @@
 package lead.exchange.dto;
 
-import lead.exchange.model.MatchStatus;
-
 import java.time.LocalDateTime;
 import java.util.UUID;
+import lead.exchange.model.MatchStatus;
 
 public record MatchDto(
         UUID id,

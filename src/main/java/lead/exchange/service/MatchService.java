@@ -1,5 +1,6 @@
 package lead.exchange.service;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -23,6 +24,7 @@ public class MatchService {
     private final MatchRepository matchRepository;
 
     private final MatchLogService matchLogService;
+    private final Clock clock;
 
     public List<Match> getMatchesByLeadId(UUID leadId) {
         log.debug("Fetching matches by lead id: {}", leadId);
@@ -40,7 +42,7 @@ public class MatchService {
 
         Match match = MatchMapper.toEntity(dto);
 
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(clock);
         ensureTimestamps(match, now);
 
         MatchStatus logStatus = resolveLogStatus(match, dto.userType());
@@ -53,9 +55,15 @@ public class MatchService {
     }
 
     private static void ensureTimestamps(Match match, LocalDateTime now) {
-        if (match.getCreatedAt() == null) match.setCreatedAt(now);
-        if (match.getUpdatedAt() == null) match.setUpdatedAt(now);
-        if (match.getMatchedAt() == null) match.setMatchedAt(now);
+        if (match.getCreatedAt() == null) {
+            match.setCreatedAt(now);
+        }
+        if (match.getUpdatedAt() == null) {
+            match.setUpdatedAt(now);
+        }
+        if (match.getMatchedAt() == null) {
+            match.setMatchedAt(now);
+        }
     }
 
     private static MatchLog buildLog(Match match, MatchStatus status, LocalDateTime now, UserType userType) {
@@ -91,8 +99,12 @@ public class MatchService {
                     "Exactly one of lead/estate statuses must change for update");
         }
 
-        if (leadChanged && userType == UserType.LEAD) return n.getLeadStatus();
-        if (estateChanged && userType == UserType.ESTATE) return n.getEstateStatus();
+        if (leadChanged && userType == UserType.LEAD) {
+            return n.getLeadStatus();
+        }
+        if (estateChanged && userType == UserType.ESTATE) {
+            return n.getEstateStatus();
+        }
 
         throw new IllegalStateException("Illegal user type: " + userType + " for changing status");
     }
@@ -109,7 +121,7 @@ public class MatchService {
         MatchStatus status = statusByUser(m, userType);
         if (status == MatchStatus.UNDEFINED) {
             throw new IllegalArgumentException(
-                    "Illegal user type: " + userType + " for setting status in new match");
+                    "User type: " + userType + " is illegal for setting status in new match");
         }
 
         return status;

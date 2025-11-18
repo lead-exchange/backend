@@ -2,7 +2,6 @@ package lead.exchange.entity;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
-
 import lead.exchange.model.MatchStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
