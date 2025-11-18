@@ -21,6 +21,17 @@ public class BaseController {
         return buildErrorResponse(ex, HttpStatus.NOT_FOUND, request);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class) //404
+    public ResponseEntity<Object> handleResourceNotFound(IllegalArgumentException ex, WebRequest request) {
+        return buildErrorResponse(ex, HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(IllegalStateException.class) //404
+    public ResponseEntity<Object> handleResourceNotFound(IllegalStateException ex, WebRequest request) {
+        return buildErrorResponse(ex, HttpStatus.BAD_REQUEST, request);
+    }
+
+
 
     private ResponseEntity<Object> buildErrorResponse(
             Exception ex, HttpStatus status,
