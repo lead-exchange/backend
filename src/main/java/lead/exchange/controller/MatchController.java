@@ -39,4 +39,10 @@ public class MatchController {
         return ResponseEntity.ok(matches);
     }
 
+    @GetMapping("/{matchId}")
+    public ResponseEntity<Match> getMatchById(@PathVariable UUID matchId) {
+        Match match = matchService.getMatchById(matchId);
+        return ResponseEntity.ok(match);
+    }
+
 }

@@ -30,6 +30,12 @@ public class MatchService {
         return matchRepository.findByLeadId(leadId);
     }
 
+    public Match getMatchById(UUID matchId) {
+        log.debug("Fetching match by id: {}", matchId);
+        return matchRepository.findById(matchId)
+            .orElseThrow(() -> new IllegalArgumentException("Match with this id not found"));
+    }
+
     public List<Match> getMatchesByEstateId(UUID estateId) {
         log.debug("Fetching matches by estate id: {}", estateId);
         return matchRepository.findByEstateId(estateId);
