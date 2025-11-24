@@ -71,6 +71,10 @@
 
 
     <module name="TreeWalker">
+        <module name="RegexpSinglelineJava">
+            <property name="format" value="LocalDateTime\.now\(\)"/>
+            <property name="message" value="Use LocalDateTime.now(clock) instead of LocalDateTime.now()"/>
+        </module>
         <!-- https://checkstyle.org/config_javadoc.html -->
         <!--         Checks for Javadoc comments.       -->
         <!-- <module name="AtclauseOrder"/> -->

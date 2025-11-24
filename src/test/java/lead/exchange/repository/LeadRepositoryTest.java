@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -75,5 +76,17 @@ class LeadRepositoryTest extends IntegrationTest {
 
         assertEquals(2, leads.size());
         leads.forEach(lead -> assertEquals(testUser.getId(), lead.getUserId()));
+    }
+
+    @Test
+    @Rollback
+    @Transactional
+    void delete_shouldRemoveLead() {
+        Lead lead = testData.createTestLead(testUser.getId());
+
+        leadRepository.delete(lead);
+
+        Optional<Lead> found = leadRepository.findById(lead.getId());
+        assertFalse(found.isPresent());
     }
 }
