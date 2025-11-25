@@ -4,7 +4,7 @@ public enum MatchStatus {
     UNDEFINED,
     COMMISSION,
     LIKED,
-    DISLIKE,
+    DISLIKED,
     ACCEPTED,
     DECLINED
 }
