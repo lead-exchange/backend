@@ -1,0 +1,187 @@
+package lead.exchange.service;
+
+import java.util.List;
+import java.util.UUID;
+import lead.exchange.dto.CreateMatchDto;
+import lead.exchange.dto.UpdateMatchDto;
+import lead.exchange.dto.UserType;
+import lead.exchange.entity.Match;
+import lead.exchange.entity.MatchLog;
+import lead.exchange.entity.MatchUpdateEntity;
+import lead.exchange.exception.ForbiddenException;
+import lead.exchange.exception.ResourceNotFoundException;
+import lead.exchange.mapper.MatchMapper;
+import lead.exchange.model.MatchStatus;
+import lead.exchange.repository.EstateRepository;
+import lead.exchange.repository.LeadRepository;
+import lead.exchange.repository.MatchRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class MatchService {
+
+    public static final String MATCH_WITH_THIS_ID_S_NOT_FOUND = "Match with this id %s not found";
+    private final MatchRepository matchRepository;
+    private final MatchLogService matchLogService;
+    private final LeadRepository leadRepository;
+    private final EstateRepository estateRepository;
+    private final MatchMapper mapper;
+
+    public List<Match> getMatchesByLeadId(UUID leadId) {
+        log.debug("Fetching matches by lead id: {}", leadId);
+        return matchRepository.findByLeadId(leadId);
+    }
+
+    public Match getMatchById(UUID matchId) {
+        log.debug("Fetching match by id: {}", matchId);
+        return matchRepository.findById(matchId)
+            .orElseThrow(() -> new IllegalArgumentException("Match with this id not found"));
+    }
+
+    public List<Match> getMatchesByEstateId(UUID estateId) {
+        log.debug("Fetching matches by estate id: {}", estateId);
+        return matchRepository.findByEstateId(estateId);
+    }
+
+    @Transactional
+    public Match createMatch(CreateMatchDto dto) {
+        log.info("Creating new match for lead: {} and estate: {}", dto.leadId(), dto.estateId());
+
+        Match match = mapper.toEntity(dto);
+
+        UserType userType = getUserType(dto.leadId(), dto.estateId(), dto.updatedBy());
+
+        switch (userType) {
+            case LEAD -> {
+                match.setLeadStatus(dto.status());
+                validateStatusTransition(match.getEstateStatus(), match.getLeadStatus());
+            }
+            case ESTATE -> {
+                match.setEstateStatus(dto.status());
+                validateStatusTransition(match.getLeadStatus(), match.getEstateStatus());
+            }
+            default -> throw new RuntimeException("Wrong user type when create match");
+        }
+
+        Match savedMatch = matchRepository.save(match);
+        matchLogService.createMatchLog(buildMatchLog(savedMatch, dto.status(), userType));
+
+        return savedMatch;
+    }
+
+    @Transactional
+    public Match updateMatch(UpdateMatchDto dto) {
+        Match createdMatch = matchRepository.findById(dto.id())
+            .orElseThrow(() -> new ResourceNotFoundException(MATCH_WITH_THIS_ID_S_NOT_FOUND.formatted(dto.id())));
+
+        UserType userType = getUserType(createdMatch.getLeadId(), createdMatch.getEstateId(), dto.updatedBy());
+        MatchUpdateEntity toSave = mapper.toEntity(dto);
+
+        switch (userType) {
+            case LEAD -> {
+                validateStatusTransition(createdMatch.getEstateStatus(), dto.status());
+                matchRepository.updateLeadMatch(toSave);
+            }
+            case ESTATE -> {
+                validateStatusTransition(createdMatch.getLeadStatus(), dto.status());
+                matchRepository.updateEstateMatch(toSave);
+            }
+            default -> throw new RuntimeException("Wrong user type when update match");
+        }
+
+
+        Match savedMatch = matchRepository.findById(dto.id())
+            .orElseThrow(() -> new RuntimeException(MATCH_WITH_THIS_ID_S_NOT_FOUND.formatted(dto.id())));
+
+        matchLogService.createMatchLog(buildMatchLog(savedMatch, dto.status(), userType));
+
+        if (isSuccess(savedMatch.getLeadStatus(), savedMatch.getEstateStatus())) {
+            log.info("Share contacts");
+        }
+
+        return savedMatch;
+    }
+
+    private void validateStatusTransition(MatchStatus collegeStatus, MatchStatus newStatus) {
+        boolean isValidTransition = switch (collegeStatus) {
+            case UNDEFINED -> isAllowedUndefinedTransition(newStatus);
+            case COMMISSION -> isAllowedCommissionTransition(newStatus);
+            case LIKED -> isAllowedLikedTransition(newStatus);
+            default -> false;
+        };
+
+        if (!isValidTransition) {
+            throw new IllegalArgumentException(
+                "Invalid status transition" + newStatus);
+        }
+    }
+
+    private UserType getUserType(UUID leadId, UUID estateId, UUID updatedBy) {
+        UserType userType;
+        if (leadRepository.findById(leadId)
+            .orElseThrow(() -> new ResourceNotFoundException("Lead with this id %s not found".formatted(leadId)))
+            .getUserId()
+            .equals(updatedBy)) {
+
+            userType = UserType.LEAD;
+        } else if (estateRepository.findById(estateId)
+            .orElseThrow(() -> new ResourceNotFoundException("Estate with this id %s not found".formatted(estateId)))
+            .getUserId()
+            .equals(updatedBy)) {
+
+            userType = UserType.ESTATE;
+        } else {
+            throw new ForbiddenException("You are not allowed to create or update match");
+        }
+        return userType;
+    }
+
+    private boolean isAllowedUndefinedTransition(MatchStatus newStatus) {
+        return newStatus == MatchStatus.LIKED
+            || newStatus == MatchStatus.DISLIKED
+            || newStatus == MatchStatus.COMMISSION;
+    }
+
+    private boolean isAllowedCommissionTransition(MatchStatus newStatus) {
+        return newStatus == MatchStatus.COMMISSION
+            || newStatus == MatchStatus.ACCEPTED
+            || newStatus == MatchStatus.DECLINED;
+    }
+
+    private boolean isAllowedLikedTransition(MatchStatus newStatus) {
+        return newStatus == MatchStatus.LIKED
+            || newStatus == MatchStatus.DISLIKED
+            || newStatus == MatchStatus.COMMISSION;
+    }
+
+
+    private MatchLog buildMatchLog(Match match, MatchStatus status, UserType userType) {
+        return MatchLog.builder()
+            .matchId(match.getId())
+            .status(status)
+            .leadCommission(match.getLeadCommission())
+            .updatedBy(match.getUpdatedBy())
+            .comment(match.getComment())
+            .createdAt(match.getUpdatedAt())
+            .userType(userType.name())
+            .build();
+    }
+
+    private boolean isSuccess(MatchStatus leadStatus, MatchStatus estateStatus) {
+        if (leadStatus.equals(MatchStatus.LIKED) && estateStatus.equals(MatchStatus.DISLIKED)) {
+            return true;
+        }
+        if (leadStatus.equals(MatchStatus.COMMISSION) && estateStatus.equals(MatchStatus.ACCEPTED)) {
+            return true;
+        }
+        if (leadStatus.equals(MatchStatus.ACCEPTED) && estateStatus.equals(MatchStatus.COMMISSION)) {
+            return true;
+        }
+        return false;
+    }
+}

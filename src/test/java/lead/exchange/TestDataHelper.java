@@ -114,16 +114,39 @@ public class TestDataHelper {
         );
     }
 
-    public Match createTestMatch(UUID leadId, UUID estateId) {
+    public Match createTestMatch(UUID leadId, UUID estateId, UUID testUserId) {
         LocalDateTime now = LocalDateTime.now(clock);
 
         return matchRepository.save(
                 Match.builder()
                         .leadId(leadId)
                         .estateId(estateId)
-                        .status(MatchStatus.PENDING)
+                        .estateStatus(MatchStatus.ACCEPTED)
+                        .leadStatus(MatchStatus.ACCEPTED)
+                        .leadCommission(1.0)
+                        .updatedBy(testUserId)
+                        .createdAt(now)
+                        .updatedAt(now)
                         .matchedAt(now)
                         .build()
+        );
+    }
+
+    public Match createTestMatch(UUID leadId, UUID estateId, UUID testUserId, MatchStatus leadStatus, MatchStatus estateStatus) {
+        LocalDateTime now = LocalDateTime.now(clock);
+
+        return matchRepository.save(
+            Match.builder()
+                .leadId(leadId)
+                .estateId(estateId)
+                .estateStatus(estateStatus)
+                .leadStatus(leadStatus)
+                .leadCommission(1.0)
+                .updatedBy(testUserId)
+                .createdAt(now)
+                .updatedAt(now)
+                .matchedAt(now)
+                .build()
         );
     }
 }

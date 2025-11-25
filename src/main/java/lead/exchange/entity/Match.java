@@ -21,16 +21,50 @@ public class Match {
     @Id
     @Column("id")
     private UUID id;
+
     @Column("lead_id")
     private UUID leadId;
+
     @Column("estate_id")
     private UUID estateId;
-    private MatchStatus status;
+
+    @Column("lead_commission")
+    private Double leadCommission;
+
+    @Column("updated_by")
+    private UUID updatedBy;
+
+    @Column("comment")
+    private String comment;
+
+    @Column("lead_status")
+    private MatchStatus leadStatus;
+
+    @Column("estate_status")
+    private MatchStatus estateStatus;
+
     @Column("matched_at")
     private LocalDateTime matchedAt;
 
+    @Column("created_at")
+    private LocalDateTime createdAt;
+
+    @Column("updated_at")
+    private LocalDateTime updatedAt;
+
     public static class MatchBuilder {
-        public MatchBuilder matchedAt(LocalDateTime timestamp) {
+
+        public Match.MatchBuilder createdAt(LocalDateTime timestamp) {
+            this.createdAt = timestamp.truncatedTo(ChronoUnit.MICROS);
+            return this;
+        }
+
+        public Match.MatchBuilder updatedAt(LocalDateTime timestamp) {
+            this.updatedAt = timestamp.truncatedTo(ChronoUnit.MICROS);
+            return this;
+        }
+
+        public Match.MatchBuilder matchedAt(LocalDateTime timestamp) {
             this.matchedAt = timestamp.truncatedTo(ChronoUnit.MICROS);
             return this;
         }
