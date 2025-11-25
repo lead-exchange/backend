@@ -35,6 +35,14 @@ public class Estate {
     @Column("updated_at")
     private LocalDateTime updatedAt;
 
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt.truncatedTo(ChronoUnit.MICROS);
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt.truncatedTo(ChronoUnit.MICROS);
+    }
+
     public static class EstateBuilder {
 
         public EstateBuilder createdAt(LocalDateTime timestamp) {
