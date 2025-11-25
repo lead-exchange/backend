@@ -9,7 +9,6 @@ import lead.exchange.exception.ResourceNotFoundException;
 import lead.exchange.model.LeadStatus;
 import lead.exchange.repository.LeadRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
@@ -19,7 +18,6 @@ public class LeadService {
     private final LeadRepository leadRepository;
     private final UserService userService;
 
-    @Autowired
     private Clock clock;
 
     public List<Lead> findByUserId(UUID userId) {
@@ -36,7 +34,6 @@ public class LeadService {
     public Lead createLead(Lead lead) {
         userService.checkUserExistByUserId(lead.getUserId());
 
-        lead.setId(UUID.randomUUID());
         lead.setStatus(LeadStatus.ACTIVE);
 
         LocalDateTime timestamp = LocalDateTime.now(clock);
