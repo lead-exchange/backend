@@ -1,6 +1,7 @@
 package lead.exchange.entity;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 import lead.exchange.model.MatchStatus;
 import lombok.AllArgsConstructor;
@@ -38,4 +39,14 @@ public class MatchLog {
 
     @Column("created_at")
     private LocalDateTime createdAt;
+
+
+    public static class MatchLogBuilder {
+
+        public MatchLog.MatchLogBuilder createdAt(LocalDateTime timestamp) {
+            this.createdAt = timestamp.truncatedTo(ChronoUnit.MICROS);
+            return this;
+        }
+
+    }
 }
