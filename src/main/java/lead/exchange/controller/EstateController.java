@@ -9,15 +9,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class EstateController {
     private final EstateService estateService;
 
-    @GetMapping("/estate/{userId}") // TODO: /estates (s at the end)
+    @GetMapping("/estate/{userId}") // TODO: /estates (s at the end), move estates to the @RequestMapping
     public ResponseEntity<List<Estate>> getEstateByUserId(@PathVariable UUID userId) {
         return ResponseEntity.ok(estateService.getEstateByUserId(userId));
     }
