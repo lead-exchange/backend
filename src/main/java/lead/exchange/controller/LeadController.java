@@ -16,38 +16,38 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/leads")
 @RequiredArgsConstructor
 public class LeadController {
     private final LeadService leadService;
 
-    @GetMapping("/lead/{userId}") // TODO: change to /leads (s at the end): move /leads to @RequestMapping
+    @GetMapping("/{userId}")
     public ResponseEntity<List<Lead>> getLeadByUserId(@PathVariable UUID userId) {
         return ResponseEntity.ok(leadService.findByUserId(userId));
     }
 
-    @GetMapping("/leads/{leadId}")
+    @GetMapping("/{leadId}")
     public ResponseEntity<Lead> getLeadById(@PathVariable UUID leadId) {
         return ResponseEntity.ok(leadService.findById(leadId));
     }
 
-    @PostMapping("/leads")
+    @PostMapping
     public ResponseEntity<Lead> createLead(@RequestBody Lead lead) {
         return ResponseEntity.ok(leadService.createLead(lead));
     }
 
-    @PutMapping("/leads/{leadId}")
+    @PutMapping("/{leadId}")
     public ResponseEntity<Lead> updateLead(@PathVariable UUID leadId, @RequestBody Lead lead) {
         return ResponseEntity.ok(leadService.updateLead(leadId, lead));
     }
 
-    @DeleteMapping("/leads/{leadId}")
+    @DeleteMapping("/{leadId}")
     public ResponseEntity<Void> deleteLead(@PathVariable UUID leadId) {
         leadService.deleteLead(leadId);
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/leads/{leadId}/archive")
+    @PostMapping("/{leadId}/archive")
     public ResponseEntity<Lead> archiveLead(@PathVariable UUID leadId) {
         return ResponseEntity.ok(leadService.archiveLead(leadId));
     }
