@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lead.exchange.exception.ResourceNotFoundException;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,13 +42,7 @@ public class BaseController {
             .map(e -> String.format("%s: %s", e.getField(), e.getDefaultMessage()))
             .collect(Collectors.joining("\n"));
 
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("status", HttpStatus.BAD_REQUEST.value());
-        body.put("error", HttpStatus.BAD_REQUEST.getReasonPhrase());
-        body.put("message", error);
-        body.put("path", ((ServletWebRequest) request).getRequest().getRequestURI());
-
-        return new ResponseEntity<>(body, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, error, (ServletWebRequest) request);
     }
 
 
@@ -56,11 +51,19 @@ public class BaseController {
             Exception ex, HttpStatus status,
             WebRequest request) {
 
+        return buildErrorResponse(status, ex.getLocalizedMessage(), (ServletWebRequest) request);
+    }
+
+    private static @NotNull ResponseEntity<Object> buildErrorResponse(
+        HttpStatus status,
+        String ex,
+        ServletWebRequest request
+    ) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("status", status.value());
         body.put("error", status.getReasonPhrase());
-        body.put("message", ex.getLocalizedMessage());
-        body.put("path", ((ServletWebRequest) request).getRequest().getRequestURI());
+        body.put("message", ex);
+        body.put("path", request.getRequest().getRequestURI());
 
         return new ResponseEntity<>(body, new HttpHeaders(), status);
     }
