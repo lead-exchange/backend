@@ -14,22 +14,22 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/estates")
 @RequiredArgsConstructor
 public class EstateController {
     private final EstateService estateService;
 
-    @GetMapping("/estate/{userId}") // TODO: /estates (s at the end), move estates to the @RequestMapping
+    @GetMapping("/{userId}")
     public ResponseEntity<List<Estate>> getEstateByUserId(@PathVariable UUID userId) {
         return ResponseEntity.ok(estateService.getEstateByUserId(userId));
     }
 
-    @GetMapping("/estates/{estateId}")
+    @GetMapping("/{estateId}")
     public ResponseEntity<Estate> getEstateById(@PathVariable UUID estateId) {
         return ResponseEntity.ok(estateService.findById(estateId));
     }
 
-    @PostMapping("/estates/{estateId}/archive")
+    @PostMapping("/{estateId}/archive")
     public ResponseEntity<Estate> archiveEstate(@PathVariable UUID estateId) {
         return ResponseEntity.ok(estateService.archiveEstate(estateId));
     }
