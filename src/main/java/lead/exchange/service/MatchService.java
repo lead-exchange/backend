@@ -52,8 +52,10 @@ public class MatchService {
     @Transactional
     public Match createMatch(CreateMatchDto dto) {
         log.info("Creating new match for lead: {} and estate: {}", dto.leadId(), dto.estateId());
-        matchRepository.findByEstateIdAndLeadId(dto.estateId(), dto.leadId()).orElseThrow(
-            () -> new ResourceAlreadyExistsException("The match with this lead id and estate id already exists")
+        matchRepository.findByEstateIdAndLeadId(dto.estateId(), dto.leadId()).ifPresent(
+            e -> {
+                throw new ResourceAlreadyExistsException("The match with this lead id and estate id already exists");
+            }
         );
 
         Match match = mapper.toEntity(dto);
