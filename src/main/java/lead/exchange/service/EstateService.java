@@ -14,7 +14,7 @@ public class EstateService {
     private final UserService userService;
 
     public List<Estate> getEstateByUserId(UUID userId) {
-        userService.checkUserExistByUserid(userId);
+        userService.checkUserExistByUserId(userId);
         return estateRepository.findByUserId(userId);
     }
 }

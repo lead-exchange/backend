@@ -19,7 +19,7 @@ public class UserService {
                 ));
     }
 
-    public void checkUserExistByUserid(UUID userId) {
+    public void checkUserExistByUserId(UUID userId) {
         userRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "User not found with userId: " + userId
