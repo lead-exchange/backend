@@ -12,14 +12,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class LeadController {
     private final LeadService leadService;
 
-    @GetMapping("/lead/{userId}")
+    @GetMapping("/lead/{userId}") // TODO: change to /leads (s at the end): move /leads to @RequestMapping
     public ResponseEntity<List<Lead>> getLeadByUserId(@PathVariable UUID userId) {
         return ResponseEntity.ok(leadService.findByUserId(userId));
     }
@@ -29,7 +31,7 @@ public class LeadController {
         return ResponseEntity.ok(leadService.findById(leadId));
     }
 
-    @PostMapping("/lead")
+    @PostMapping("/leads")
     public ResponseEntity<Lead> createLead(@RequestBody Lead lead) {
         return ResponseEntity.ok(leadService.createLead(lead));
     }
