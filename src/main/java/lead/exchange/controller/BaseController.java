@@ -3,6 +3,7 @@ package lead.exchange.controller;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lead.exchange.exception.ResourceAlreadyExistsException;
 import lead.exchange.exception.ResourceNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -32,6 +33,11 @@ public class BaseController {
     @ExceptionHandler(IllegalStateException.class) //404
     public ResponseEntity<Object> handleResourceNotFound(IllegalStateException ex, WebRequest request) {
         return buildErrorResponse(ex, HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(ResourceAlreadyExistsException.class) //404
+    public ResponseEntity<Object> handleResourceNotFound(ResourceAlreadyExistsException ex, WebRequest request) {
+        return buildErrorResponse(ex, HttpStatus.CONFLICT, request);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class) //404

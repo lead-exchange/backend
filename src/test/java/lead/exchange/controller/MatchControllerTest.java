@@ -10,11 +10,13 @@ import java.util.stream.Stream;
 import lead.exchange.IntegrationTest;
 import lead.exchange.entity.Match;
 import lead.exchange.model.MatchStatus;
+import lead.exchange.repository.MatchRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.beans.factory.annotation.Autowired;
 
 
 public class MatchControllerTest extends IntegrationTest {
@@ -23,9 +25,11 @@ public class MatchControllerTest extends IntegrationTest {
     private UUID testEstateId;
     private UUID testUserLeadId;
     private UUID testUserEstateId;
+    @Autowired private MatchRepository matchRepository;
 
     @BeforeEach
     public void setup() {
+        matchRepository.deleteAll();
         testUserLeadId = testData.createTestUser().getId();
         testUserEstateId = testData.createTestUser().getId();
         testLeadId = testData.createTestLead(testUserLeadId).getId();

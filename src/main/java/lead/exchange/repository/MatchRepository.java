@@ -1,6 +1,7 @@
 package lead.exchange.repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import lead.exchange.entity.Match;
 import lead.exchange.entity.MatchUpdateEntity;
@@ -15,6 +16,9 @@ public interface MatchRepository extends ListCrudRepository<Match, UUID> {
 
     @Query("SELECT * FROM matches WHERE estate_id = :estateId")
     List<Match> findByEstateId(UUID estateId);
+
+    @Query("SELECT * FROM matches WHERE estate_id = :estateId and lead_id =:leadId ")
+    Optional<Match> findByEstateIdAndLeadId(UUID estateId, UUID leadId);
 
     @Query("""
         UPDATE matches SET

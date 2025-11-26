@@ -9,6 +9,7 @@ import lead.exchange.entity.Match;
 import lead.exchange.entity.MatchLog;
 import lead.exchange.entity.MatchUpdateEntity;
 import lead.exchange.exception.ForbiddenException;
+import lead.exchange.exception.ResourceAlreadyExistsException;
 import lead.exchange.exception.ResourceNotFoundException;
 import lead.exchange.mapper.MatchMapper;
 import lead.exchange.model.MatchStatus;
@@ -51,6 +52,11 @@ public class MatchService {
     @Transactional
     public Match createMatch(CreateMatchDto dto) {
         log.info("Creating new match for lead: {} and estate: {}", dto.leadId(), dto.estateId());
+        matchRepository.findByEstateIdAndLeadId(dto.estateId(), dto.leadId()).ifPresent(
+            e -> {
+                throw new ResourceAlreadyExistsException("The match with this lead id and estate id already exists");
+            }
+        );
 
         Match match = mapper.toEntity(dto);
 
@@ -67,6 +73,7 @@ public class MatchService {
             }
             default -> throw new RuntimeException("Wrong user type when create match");
         }
+
 
         Match savedMatch = matchRepository.save(match);
         matchLogService.createMatchLog(buildMatchLog(savedMatch, dto.status(), userType));

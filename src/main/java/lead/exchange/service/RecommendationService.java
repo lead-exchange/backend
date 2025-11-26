@@ -75,6 +75,7 @@ public class RecommendationService {
 
     public void initiateRecommendations() {
         recommendationRepository.deleteAll();
+        //todo filter entity with matches
         List<Lead> leads = leadRepository.findAll();
         List<Estate> estates = estateRepository.findAll();
 
