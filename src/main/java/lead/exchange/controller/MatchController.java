@@ -1,5 +1,6 @@
 package lead.exchange.controller;
 
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lead.exchange.dto.CreateMatchDto;
@@ -24,7 +25,7 @@ public class MatchController {
     private final MatchService matchService;
 
     @PostMapping
-    public ResponseEntity<Match> createMatch(@RequestBody CreateMatchDto matchDto) {
+    public ResponseEntity<Match> createMatch(@RequestBody @Valid CreateMatchDto matchDto) {
         Match createdMatch = matchService.createMatch(matchDto);
         return ResponseEntity.ok(createdMatch);
     }
