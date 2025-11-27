@@ -8,16 +8,18 @@ import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup;
 import com.pengrad.telegrambot.request.SendMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Service
 public class TelegramNotificationService {
 
     private final TelegramBot telegramBot;
+    private final Set<Long> requestedPhone = ConcurrentHashMap.newKeySet();
 
     @Autowired
     public TelegramNotificationService(TelegramBot telegramBot) {
@@ -32,6 +34,10 @@ public class TelegramNotificationService {
     }
 
     public void requestPhoneShare(long chatId) {
+        if (requestedPhone.contains(chatId)) {
+            return;
+        }
+
         KeyboardButton btn = new KeyboardButton("Отправить номер 📱").requestContact(true);
 
         ReplyKeyboardMarkup keyboard = new ReplyKeyboardMarkup(btn);
@@ -41,19 +47,31 @@ public class TelegramNotificationService {
         msg.replyMarkup(keyboard);
 
         telegramBot.execute(msg);
+
+        // отмечаем, что уже отправили
+        requestedPhone.add(chatId);
     }
 
     private class MyUpdateListener implements UpdatesListener {
 
         @Override
-        public int process(List<Update> list) {
-            for (Update update : list) {
-                log.info(update.toString());
+        public int process(List<Update> updates) {
+            for (Update update : updates) {
                 if (update.message() != null && "/start".equals(update.message().text())) {
                     requestPhoneShare(update.message().chat().id());
                 }
+
+                // обработка contact (телефон)
+                if (update.message() != null && update.message().contact() != null) {
+                    Long chatId = update.message().chat().id();
+                    String phone = update.message().contact().phoneNumber();
+
+                    // сохраняем в БД
+
+                    // можно удалить из множества, чтобы в будущем при /start можно было повторно отправлять
+                }
             }
-            return 0;
+            return UpdatesListener.CONFIRMED_UPDATES_ALL;
         }
     }
 }
