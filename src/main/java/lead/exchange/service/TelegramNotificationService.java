@@ -20,8 +20,9 @@ public class TelegramNotificationService {
     private final TelegramBot telegramBot;
 
     @Autowired
-    public TelegramNotificationService(TelegramBot telegramBot, MyUpdateListener myUpdateListener) {
+    public TelegramNotificationService(TelegramBot telegramBot) {
         this.telegramBot = telegramBot;
+        MyUpdateListener myUpdateListener = new MyUpdateListener();
         telegramBot.setUpdatesListener(myUpdateListener);
     }
 
@@ -42,7 +43,6 @@ public class TelegramNotificationService {
         telegramBot.execute(msg);
     }
 
-    @Component
     private class MyUpdateListener implements UpdatesListener {
 
         @Override
