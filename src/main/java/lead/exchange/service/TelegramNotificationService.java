@@ -20,10 +20,12 @@ public class TelegramNotificationService {
 
     private final TelegramBot telegramBot;
     private final Set<Long> requestedPhone = ConcurrentHashMap.newKeySet();
+    private final UserService userService;
 
     @Autowired
-    public TelegramNotificationService(TelegramBot telegramBot) {
+    public TelegramNotificationService(TelegramBot telegramBot, UserService userService) {
         this.telegramBot = telegramBot;
+        this.userService = userService;
         MyUpdateListener myUpdateListener = new MyUpdateListener();
         telegramBot.setUpdatesListener(myUpdateListener);
     }
@@ -61,14 +63,15 @@ public class TelegramNotificationService {
                     requestPhoneShare(update.message().chat().id());
                 }
 
-                // обработка contact (телефон)
                 if (update.message() != null && update.message().contact() != null) {
-                    Long chatId = update.message().chat().id();
                     String phone = update.message().contact().phoneNumber();
+                    Long chatId = update.message().chat().id();
+                    String telegramId = update.message().from().username();
 
-                    // сохраняем в БД
+                    userService.savePhoneAndChat(telegramId, chatId, phone);
 
-                    // можно удалить из множества, чтобы в будущем при /start можно было повторно отправлять
+                    SendMessage msg = new SendMessage(chatId, "Спасибо! Телефон сохранён 📱");
+                    telegramBot.execute(msg);
                 }
             }
             return UpdatesListener.CONFIRMED_UPDATES_ALL;

@@ -20,16 +20,4 @@ public class UserController {
     public ResponseEntity<User> getUserByTelegramId(@PathVariable String telegramId) {
         return ResponseEntity.ok(userService.getUserByTelegramId(telegramId));
     }
-
-    @PostMapping("/testSending/{chatId}")
-    public ResponseEntity<Void> testSending(@PathVariable long chatId) {
-        telegramNotificationService.sendNotification("test hi", chatId);
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/testPhoneRequest/{chatId}")
-    public ResponseEntity<Void> testPhoneRequest(@PathVariable long chatId) {
-        telegramNotificationService.requestPhoneShare(chatId);
-        return ResponseEntity.ok().build();
-    }
 }

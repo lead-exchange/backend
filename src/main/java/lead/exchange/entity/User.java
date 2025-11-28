@@ -22,6 +22,10 @@ public class User {
     private UUID id;
     @Column("telegram_id")
     private String telegramId;
+    @Column("phone_number")
+    private String phoneNumber;
+    @Column("chat_id")
+    private Long chatId;
     @Column("created_at")
     private LocalDateTime createdAt;
     @Column("updated_at")

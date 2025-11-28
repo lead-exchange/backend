@@ -13,4 +13,7 @@ public interface UserRepository extends ListCrudRepository<User, UUID> {
 
     @Query("SELECT * FROM users WHERE id = :userId")
     Optional<User> findByUserId(UUID userId);
+
+    @Query("UPDATE users SET chat_id = :chatId, phone_number = :phoneNumber, updated_at = now() WHERE telegram_id = :telegramId")
+    void updateChatAndPhoneByTelegramId(String telegramId, Long chatId, String phoneNumber);
 }
