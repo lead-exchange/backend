@@ -19,9 +19,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class EstateController {
     private final EstateService estateService;
 
-    @GetMapping("/{userId}")
+    @GetMapping("/user/{userId}")
     public ResponseEntity<List<Estate>> getEstateByUserId(@PathVariable UUID userId) {
         return ResponseEntity.ok(estateService.getEstateByUserId(userId));
+    }
+
+    @GetMapping("/{estateId}")
+    public ResponseEntity<Estate> getEstateById(@PathVariable UUID estateId) {
+        return ResponseEntity.ok(estateService.findById(estateId));
     }
 
     @PostMapping("/{estateId}/archive")
