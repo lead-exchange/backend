@@ -26,11 +26,6 @@ public class LeadController {
         return ResponseEntity.ok(leadService.findByUserId(userId));
     }
 
-    @GetMapping("/{leadId}")
-    public ResponseEntity<Lead> getLeadById(@PathVariable UUID leadId) {
-        return ResponseEntity.ok(leadService.findById(leadId));
-    }
-
     @PostMapping
     public ResponseEntity<Lead> createLead(@RequestBody Lead lead) {
         return ResponseEntity.ok(leadService.createLead(lead));
