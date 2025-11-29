@@ -24,11 +24,6 @@ public class EstateController {
         return ResponseEntity.ok(estateService.getEstateByUserId(userId));
     }
 
-    @GetMapping("/{estateId}")
-    public ResponseEntity<Estate> getEstateById(@PathVariable UUID estateId) {
-        return ResponseEntity.ok(estateService.findById(estateId));
-    }
-
     @PostMapping("/{estateId}/archive")
     public ResponseEntity<Estate> archiveEstate(@PathVariable UUID estateId) {
         return ResponseEntity.ok(estateService.archiveEstate(estateId));
