@@ -1,9 +1,9 @@
 package lead.exchange.external;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import jakarta.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
-import jakarta.annotation.PostConstruct;
 import lead.exchange.config.ExternalApiProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
