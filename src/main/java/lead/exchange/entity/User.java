@@ -26,6 +26,8 @@ public class User {
     private LocalDateTime createdAt;
     @Column("updated_at")
     private LocalDateTime updatedAt;
+    @Column("phone")
+    private String phone;
 
     public static class UserBuilder {
 

@@ -34,6 +34,8 @@ public class Estate {
     private LocalDateTime createdAt;
     @Column("updated_at")
     private LocalDateTime updatedAt;
+    @Column("external_id")
+    private String externalId;
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt.truncatedTo(ChronoUnit.MICROS);

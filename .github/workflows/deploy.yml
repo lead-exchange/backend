@@ -54,3 +54,4 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             sudo systemctl restart leads-exchange
+#            TODO: разобраться, как прокидывать сюда EXTERNAL_API_TOKEN в env из секретов?

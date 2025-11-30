@@ -13,4 +13,7 @@ public interface UserRepository extends ListCrudRepository<User, UUID> {
 
     @Query("SELECT * FROM users WHERE id = :userId")
     Optional<User> findByUserId(UUID userId);
+
+    @Query("SELECT phone FROM users WHERE id = :userId")
+    Optional<String> getUserPhone(UUID userId);
 }

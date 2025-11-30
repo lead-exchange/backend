@@ -11,12 +11,26 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class EstateAttributes {
-    // TODO: это примеры полей, конкретные поля нужно указать при реализации логики /create для объекта
     private String title;
     private String description;
     private String address;
-    private Double price;
-    private Integer area;
-    private Integer bedrooms;
+    private String realtyType;
+
+    private Double areaCommon;
+    private Double areaKitchen;
+    private Double areaLiving;
+    private String areaRoom;
+    private Double areaLand;
+    private Integer areaLandType;
+
+    private String builtYear;
+    private Integer floor;
+    private Integer floors;
+    private Integer rooms;
+    private Integer roofHeight;
+
+    private Long price;
+    private Long pricePerMeter;
+
     private List<String> photos;
 }

@@ -25,4 +25,11 @@ public class UserService {
                         "User not found with userId: " + userId
                 ));
     }
+
+    public String getUserPhone(UUID userId) {
+        return userRepository.getUserPhone(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Can't get phone: user not found with userId = " + userId
+                ));
+    }
 }

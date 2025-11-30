@@ -136,12 +136,12 @@ public class RecommendationService {
         if (
             requirements.getMinArea() != null
                 && requirements.getMaxArea() != null
-                && estateAttributes.getArea() != null
+                && estateAttributes.getAreaCommon() != null
         ) {
             totalWeight += W_AREA;
             double avgArea = (requirements.getMinArea() + requirements.getMaxArea()) / 2.0;
             double range = requirements.getMaxArea() - requirements.getMinArea();
-            double diff = Math.abs(estateAttributes.getArea() - avgArea);
+            double diff = Math.abs(estateAttributes.getAreaCommon() - avgArea);
             double areaScore = 1.0 - Math.min(diff / range, 1.0);
             score += W_AREA * areaScore;
 
@@ -161,9 +161,9 @@ public class RecommendationService {
 //        }
 
         // --- Количество спален ---
-        if (requirements.getBedrooms() != null && estateAttributes.getBedrooms() != null) {
+        if (requirements.getBedrooms() != null && estateAttributes.getRooms() != null) {
             totalWeight += W_BEDROOMS;
-            double diff = Math.abs(requirements.getBedrooms() - estateAttributes.getBedrooms());
+            double diff = Math.abs(requirements.getBedrooms() - estateAttributes.getRooms());
             double bedroomScore = Math.max(0, 1.0 - diff / BEDROOM_SCORE_CONST);
             score += W_BEDROOMS * bedroomScore;
 
