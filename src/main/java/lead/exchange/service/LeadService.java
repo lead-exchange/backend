@@ -21,7 +21,7 @@ public class LeadService {
     private Clock clock;
 
     public List<Lead> findByUserId(UUID userId) {
-        userService.checkUserExistByUserId(userId);
+        userService.getUserById(userId);
         return leadRepository.findByUserId(userId);
     }
 
@@ -32,7 +32,7 @@ public class LeadService {
     }
 
     public Lead createLead(Lead lead) {
-        userService.checkUserExistByUserId(lead.getUserId());
+        userService.getUserById(lead.getUserId());
 
         lead.setStatus(LeadStatus.ACTIVE);
 

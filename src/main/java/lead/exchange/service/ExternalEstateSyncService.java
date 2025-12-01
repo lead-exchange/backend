@@ -10,7 +10,6 @@ import java.util.Optional;
 import java.util.UUID;
 import lead.exchange.entity.Estate;
 import lead.exchange.entity.User;
-import lead.exchange.exception.ResourceNotFoundException;
 import lead.exchange.external.ExternalEstateClient;
 import lead.exchange.external.ExternalEstateMapper;
 import lead.exchange.model.EstateAttributes;
@@ -99,7 +98,9 @@ public class ExternalEstateSyncService {
         while (true) {
             List<User> users = userService.getAll(offset, batchSize);
 
-            if (users.isEmpty()) break;
+            if (users.isEmpty()) {
+                break;
+            }
 
             for (User user : users) {
                 syncUser(user.getId());

@@ -20,8 +20,8 @@ public class UserService {
                 ));
     }
 
-    public void checkUserExistByUserId(UUID userId) {
-        userRepository.findByUserId(userId)
+    public User getUserById(UUID userId) {
+        return userRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "User not found with userId: " + userId
                 ));
@@ -40,9 +40,7 @@ public class UserService {
 
     public User updatePhone(UUID userId, String newPhone) {
 
-        User user = userRepository.findByUserId(userId).orElseThrow(() -> new ResourceNotFoundException(
-                "User not found with userId: " + userId
-        ));
+        User user = getUserById(userId);
 
         if (newPhone.equals(user.getPhone())) {
             return user;

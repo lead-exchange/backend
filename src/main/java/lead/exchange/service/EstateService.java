@@ -21,7 +21,7 @@ public class EstateService {
     private Clock clock;
 
     public List<Estate> getEstateByUserId(UUID userId) {
-        userService.checkUserExistByUserId(userId);
+        userService.getUserById(userId);
         return estateRepository.findByUserId(userId);
     }
 

@@ -33,7 +33,8 @@ public class ExternalEstateClient {
             long waitNanos = probe.getNanosToWaitForRefill();
             try {
                 Thread.sleep(waitNanos / 1_000_000, (int) (waitNanos % 1_000_000));
-            } catch (InterruptedException ignored) {}
+            } catch (InterruptedException ignored) {
+            }
         }
     }
 
@@ -61,7 +62,7 @@ public class ExternalEstateClient {
 
     public JsonNode getEntityById(String id) {
         waitForPermit();
-        
+
         String url = props.getUrlEntity() + "?id=" + id + "&key=" + props.getToken() + "&type=realty&short=1";
 
         return externalWebClient.get()
