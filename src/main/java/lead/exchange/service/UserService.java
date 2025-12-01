@@ -37,4 +37,20 @@ public class UserService {
     public List<User> getAll(long offset, long batchSize) {
         return userRepository.findBatch(batchSize, offset);
     }
+
+    public User updatePhone(UUID userId, String newPhone) {
+
+        User user = userRepository.findByUserId(userId).orElseThrow(() -> new ResourceNotFoundException(
+                "User not found with userId: " + userId
+        ));
+
+        if (newPhone.equals(user.getPhone())) {
+            return user;
+        }
+
+        user.setPhone(newPhone);
+        userRepository.save(user);
+
+        return user;
+    }
 }
