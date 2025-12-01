@@ -1,6 +1,8 @@
 package lead.exchange.external;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import io.github.bucket4j.Bucket;
+import io.github.bucket4j.ConsumptionProbe;
 import jakarta.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +17,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 @RequiredArgsConstructor
 public class ExternalEstateClient {
     private final ExternalApiProperties props;
+    private final Bucket externalApiBucket;
     private WebClient externalWebClient;
 
     @PostConstruct
@@ -22,6 +25,16 @@ public class ExternalEstateClient {
         this.externalWebClient = WebClient.builder()
                 .defaultHeader("Authorization", "Bearer " + props.getToken())
                 .build();
+    }
+
+    private void waitForPermit() {
+        ConsumptionProbe probe = externalApiBucket.tryConsumeAndReturnRemaining(1);
+        if (!probe.isConsumed()) {
+            long waitNanos = probe.getNanosToWaitForRefill();
+            try {
+                Thread.sleep(waitNanos / 1_000_000, (int) (waitNanos % 1_000_000));
+            } catch (InterruptedException ignored) {}
+        }
     }
 
     public List<String> getIdsByPhone(String phone) {
@@ -47,6 +60,8 @@ public class ExternalEstateClient {
     }
 
     public JsonNode getEntityById(String id) {
+        waitForPermit();
+        
         String url = props.getUrlEntity() + "?id=" + id + "&key=" + props.getToken() + "&type=realty&short=1";
 
         return externalWebClient.get()

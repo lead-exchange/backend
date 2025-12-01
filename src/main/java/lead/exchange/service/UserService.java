@@ -1,5 +1,6 @@
 package lead.exchange.service;
 
+import java.util.List;
 import java.util.UUID;
 import lead.exchange.entity.User;
 import lead.exchange.exception.ResourceNotFoundException;
@@ -31,5 +32,9 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Can't get phone: user not found with userId = " + userId
                 ));
+    }
+
+    public List<User> getAll(long offset, long batchSize) {
+        return userRepository.findBatch(batchSize, offset);
     }
 }

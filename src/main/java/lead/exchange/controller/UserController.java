@@ -17,4 +17,6 @@ public class UserController {
     public ResponseEntity<User> getUserByTelegramId(@PathVariable String telegramId) {
         return ResponseEntity.ok(userService.getUserByTelegramId(telegramId));
     }
+
+    // TODO: нужно при создании пользователя подтягивать его объекты
 }
