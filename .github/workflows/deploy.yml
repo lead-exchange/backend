@@ -56,5 +56,5 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           envs: EXTERNAL_API_TOKEN, VAR
           script: |
-            echo "I am $VAR"
+            export EXTERNAL_API_TOKEN='$EXTERNAL_API_TOKEN'
             sudo systemctl restart leads-exchange
