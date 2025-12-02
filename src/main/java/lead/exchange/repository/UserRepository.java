@@ -1,5 +1,6 @@
 package lead.exchange.repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lead.exchange.entity.User;
@@ -14,6 +15,9 @@ public interface UserRepository extends ListCrudRepository<User, UUID> {
     @Query("SELECT * FROM users WHERE id = :userId")
     Optional<User> findByUserId(UUID userId);
 
-    @Query("UPDATE users SET chat_id = :chatId, phone_number = :phoneNumber, updated_at = now() WHERE telegram_id = :telegramId")
-    void updateChatAndPhoneByTelegramId(String telegramId, Long chatId, String phoneNumber);
+    @Query("SELECT phone FROM users WHERE id = :userId")
+    Optional<String> getUserPhone(UUID userId);
+
+    @Query("SELECT * FROM users ORDER BY id LIMIT :limit OFFSET :offset")
+    List<User> findBatch(long limit, long offset);
 }

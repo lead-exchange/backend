@@ -1,10 +1,11 @@
 package lead.exchange.service;
 
-import java.util.Optional;
+import java.util.List;
 import java.util.UUID;
 import lead.exchange.entity.User;
 import lead.exchange.exception.ResourceNotFoundException;
 import lead.exchange.repository.UserRepository;
+import lead.exchange.samolet.TopnlabApiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final TopnlabApiService topnlabApiService;
 
     public User getUserByTelegramId(String telegramId) {
         return userRepository.findByTelegramId(telegramId)
@@ -20,28 +22,20 @@ public class UserService {
                 ));
     }
 
-    public void checkUserExistByUserId(UUID userId) {
-        userRepository.findByUserId(userId)
+    public User getUserById(UUID userId) {
+        return userRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "User not found with userId: " + userId
                 ));
     }
 
-    public void savePhoneAndChat(String telegramId, Long chatId, String phoneNumber) {
-        Optional<User> userOpt = userRepository.findByTelegramId(telegramId);
+    public void fillUserEstates(UUID userId) {
+        User user = getUserById(userId);
+        topnlabApiService.updateEstates(userId, user.getPhone());
 
-        if (userOpt.isPresent()) {
-            userRepository.updateChatAndPhoneByTelegramId(telegramId, chatId, phoneNumber);
-        } else {
-            User user = new User(
-                    java.util.UUID.randomUUID(),
-                    telegramId,
-                    phoneNumber,
-                    chatId,
-                    java.time.LocalDateTime.now(),
-                    java.time.LocalDateTime.now()
-            );
-            userRepository.save(user);
-        }
+    }
+
+    public List<User> getAll(long offset, long batchSize) {
+        return userRepository.findBatch(batchSize, offset);
     }
 }

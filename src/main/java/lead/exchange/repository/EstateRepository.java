@@ -1,6 +1,7 @@
 package lead.exchange.repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import lead.exchange.entity.Estate;
 import org.springframework.data.jdbc.repository.query.Query;
@@ -10,4 +11,6 @@ public interface EstateRepository extends ListCrudRepository<Estate, UUID> {
 
     @Query("SELECT * FROM estates WHERE user_id = :userId")
     List<Estate> findByUserId(UUID userId);
+
+    Optional<Estate> findEstatesByExternalId(Long externalId);
 }
