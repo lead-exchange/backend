@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class EstateController {
     private final EstateService estateService;
 
-    @GetMapping("/{userId}")
+    @GetMapping("/user/{userId}")
     public ResponseEntity<List<Estate>> getEstateByUserId(@PathVariable UUID userId) {
         return ResponseEntity.ok(estateService.getEstateByUserId(userId));
     }

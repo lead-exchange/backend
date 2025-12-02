@@ -21,14 +21,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class LeadController {
     private final LeadService leadService;
 
-    @GetMapping("/{userId}")
+    @GetMapping("/user/{userId}")
     public ResponseEntity<List<Lead>> getLeadByUserId(@PathVariable UUID userId) {
         return ResponseEntity.ok(leadService.findByUserId(userId));
-    }
-
-    @GetMapping("/{leadId}")
-    public ResponseEntity<Lead> getLeadById(@PathVariable UUID leadId) {
-        return ResponseEntity.ok(leadService.findById(leadId));
     }
 
     @PostMapping
