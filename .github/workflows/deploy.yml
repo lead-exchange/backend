@@ -57,4 +57,5 @@ jobs:
           envs: EXTERNAL_API_TOKEN, VAR
           script: |
             export EXTERNAL_API_TOKEN='$EXTERNAL_API_TOKEN'
+            export VAR='$VAR'
             sudo systemctl restart leads-exchange
