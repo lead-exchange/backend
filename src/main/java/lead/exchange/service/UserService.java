@@ -25,4 +25,13 @@ public class UserService {
                         "User not found with userId: " + userId
                 ));
     }
+
+    public User fillUserEstates(UUID userId) {
+        User user = userRepository.findByUserId(userId)
+            .orElseThrow(() -> new ResourceNotFoundException(
+                "User not found with userId: " + userId
+            ));
+
+        return null;
+    }
 }

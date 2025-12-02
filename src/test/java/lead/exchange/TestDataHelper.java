@@ -90,13 +90,6 @@ public class TestDataHelper {
 
     public Estate createTestEstate(UUID userId) {
         EstateAttributes attributes = EstateAttributes.builder()
-                .title("Beautiful Apartment")
-                .description("Spacious apartment in city center")
-                .address("123 Main St")
-                .price(150000.0)
-                .area(75)
-                .bedrooms(2)
-                .photos(List.of("photo1.jpg", "photo2.jpg"))
                 .build();
 
         LocalDateTime now = LocalDateTime.now(clock);

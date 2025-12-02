@@ -133,23 +133,23 @@ public class RecommendationService {
         }
 
         // --- Площадь ---
-        if (
-            requirements.getMinArea() != null
-                && requirements.getMaxArea() != null
-                && estateAttributes.getArea() != null
-        ) {
-            totalWeight += W_AREA;
-            double avgArea = (requirements.getMinArea() + requirements.getMaxArea()) / 2.0;
-            double range = requirements.getMaxArea() - requirements.getMinArea();
-            double diff = Math.abs(estateAttributes.getArea() - avgArea);
-            double areaScore = 1.0 - Math.min(diff / range, 1.0);
-            score += W_AREA * areaScore;
-
-            if (W_AREA * areaScore > maxSimilarityValue) {
-                maxSimilarityValue = W_AREA * areaScore;
-                maxSimilarityAttribute = "area";
-            }
-        }
+//        if (
+//            requirements.getMinArea() != null
+//                && requirements.getMaxArea() != null
+//                && estateAttributes.getArea() != null
+//        ) {
+//            totalWeight += W_AREA;
+//            double avgArea = (requirements.getMinArea() + requirements.getMaxArea()) / 2.0;
+//            double range = requirements.getMaxArea() - requirements.getMinArea();
+//            double diff = Math.abs(estateAttributes.getArea() - avgArea);
+//            double areaScore = 1.0 - Math.min(diff / range, 1.0);
+//            score += W_AREA * areaScore;
+//
+//            if (W_AREA * areaScore > maxSimilarityValue) {
+//                maxSimilarityValue = W_AREA * areaScore;
+//                maxSimilarityAttribute = "area";
+//            }
+//        }
 
         // --- Локации ---
 //        if (requirements.getLocations() != null && !requirements.getLocations().isEmpty()
@@ -161,17 +161,17 @@ public class RecommendationService {
 //        }
 
         // --- Количество спален ---
-        if (requirements.getBedrooms() != null && estateAttributes.getBedrooms() != null) {
-            totalWeight += W_BEDROOMS;
-            double diff = Math.abs(requirements.getBedrooms() - estateAttributes.getBedrooms());
-            double bedroomScore = Math.max(0, 1.0 - diff / BEDROOM_SCORE_CONST);
-            score += W_BEDROOMS * bedroomScore;
-
-            if (W_BEDROOMS * bedroomScore > maxSimilarityValue) {
-                maxSimilarityValue = W_BEDROOMS * bedroomScore;
-                maxSimilarityAttribute = "bedrooms quantity";
-            }
-        }
+//        if (requirements.getBedrooms() != null && estateAttributes.getBedrooms() != null) {
+//            totalWeight += W_BEDROOMS;
+//            double diff = Math.abs(requirements.getBedrooms() - estateAttributes.getBedrooms());
+//            double bedroomScore = Math.max(0, 1.0 - diff / BEDROOM_SCORE_CONST);
+//            score += W_BEDROOMS * bedroomScore;
+//
+//            if (W_BEDROOMS * bedroomScore > maxSimilarityValue) {
+//                maxSimilarityValue = W_BEDROOMS * bedroomScore;
+//                maxSimilarityAttribute = "bedrooms quantity";
+//            }
+//        }
 
         double normalizedScore = totalWeight > 0 ? Math.round((score / totalWeight) * PERSENT) / PERSENT : 0.0;
         return new ScoreCalculationResult(normalizedScore, maxSimilarityAttribute);
