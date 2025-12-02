@@ -1,6 +1,7 @@
 package lead.exchange.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import lead.exchange.entity.User;
 import lead.exchange.exception.ResourceNotFoundException;
@@ -22,6 +23,10 @@ public class UserService {
                 ));
     }
 
+    public Optional<User> getOptionalUserByTelegramId(String telegramId) {
+        return userRepository.findByTelegramId(telegramId);
+    }
+
     public User getUserById(UUID userId) {
         return userRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -37,5 +42,21 @@ public class UserService {
 
     public List<User> getAll(long offset, long batchSize) {
         return userRepository.findBatch(batchSize, offset);
+    }
+
+    public User updatePhone(UUID userId, String newPhone) {
+        User user = getUserById(userId);
+
+        if (newPhone.equals(user.getPhone())) {
+            return user;
+        }
+
+        user.setPhone(newPhone);
+
+        return saveUser(user);
+    }
+
+    public User saveUser(User user) {
+        return userRepository.save(user);
     }
 }

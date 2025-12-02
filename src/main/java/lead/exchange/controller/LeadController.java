@@ -1,8 +1,10 @@
 package lead.exchange.controller;
 
+import io.swagger.v3.oas.annotations.Parameter;
 import java.util.List;
 import java.util.UUID;
 import lead.exchange.entity.Lead;
+import lead.exchange.security.models.CurrentUser;
 import lead.exchange.service.LeadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,15 +17,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+
 @RestController
 @RequestMapping("/api/leads")
 @RequiredArgsConstructor
 public class LeadController {
+
     private final LeadService leadService;
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Lead>> getLeadByUserId(@PathVariable UUID userId) {
-        return ResponseEntity.ok(leadService.findByUserId(userId));
+    @GetMapping
+    public ResponseEntity<List<Lead>> getMyLeads(@Parameter(hidden = true) CurrentUser currentUser) {
+        return ResponseEntity.ok(leadService.findByUserId(currentUser.getId()));
     }
 
     @GetMapping("/{leadId}")

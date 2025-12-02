@@ -26,6 +26,11 @@ src/
 mvn clean package
 ```
 
+If troubles with migrations mismatch:
+```bash
+mvn flyway:clean -Dflyway.cleanDisabled=false -Dflyway.url=jdbc:postgresql://localhost:5432/lead_exchange -Dflyway.user=postgres -Dflyway.password=postgres
+```
+
 
 ### Run Tests
 ```bash
