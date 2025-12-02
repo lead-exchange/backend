@@ -58,4 +58,4 @@ jobs:
           script: |
             export EXTERNAL_API_TOKEN='$EXTERNAL_API_TOKEN'
             export VAR='$VAR'
-            sudo systemctl restart leads-exchange
+            sudo EXTERNAL_API_TOKEN='$EXTERNAL_API_TOKEN' systemctl restart leads-exchange
