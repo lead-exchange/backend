@@ -40,7 +40,7 @@ class EstateRepositoryTest extends IntegrationTest {
         assertEquals(EstateStatus.ACTIVE, estate.getStatus());
         assertNotNull(estate.getAttributes());
         assertEquals("Beautiful Apartment", estate.getAttributes().getTitle());
-        assertEquals(150000.0, estate.getAttributes().getPrice());
+        assertEquals(150000, estate.getAttributes().getPrice());
     }
 
     @Test

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 import lead.exchange.entity.Estate;
 import lead.exchange.service.EstateService;
+import lead.exchange.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class EstateController {
     private final EstateService estateService;
+    private final UserService userService;
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<Estate>> getEstateByUserId(@PathVariable UUID userId) {
@@ -33,4 +35,11 @@ public class EstateController {
     public ResponseEntity<Estate> archiveEstate(@PathVariable UUID estateId) {
         return ResponseEntity.ok(estateService.archiveEstate(estateId));
     }
+
+    @PostMapping("/refresh/{userId}")
+    public ResponseEntity<Void> refresh(@PathVariable UUID userId) {
+        userService.fillUserEstates(userId);
+        return ResponseEntity.ok().build();
+    }
+
 }

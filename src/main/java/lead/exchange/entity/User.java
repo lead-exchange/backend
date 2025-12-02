@@ -22,10 +22,14 @@ public class User {
     private UUID id;
     @Column("telegram_id")
     private String telegramId;
+    @Column("chat_id")
+    private Long chatId;
     @Column("created_at")
     private LocalDateTime createdAt;
     @Column("updated_at")
     private LocalDateTime updatedAt;
+    @Column("phone")
+    private String phone;
 
     public static class UserBuilder {
 
