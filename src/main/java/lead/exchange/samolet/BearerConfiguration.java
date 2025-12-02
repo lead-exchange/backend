@@ -9,7 +9,7 @@ public class BearerConfiguration {
 
     private final String apiKey;
 
-    public BearerConfiguration(@Value("${samolet.auth.token}") String apiKey) {
+    public BearerConfiguration(@Value("${external.api.token}") String apiKey) {
         this.apiKey = apiKey;
     }
 

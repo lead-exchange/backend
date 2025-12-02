@@ -9,6 +9,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface AnalyticsplusApi {
 
     @RequestMapping(method = RequestMethod.GET, value = "/users/api/realty/by-phone")
-    EstatesIdByRealtyApiModel getRealtyEstateIds(@RequestParam("phone") String phone);
+    EstatesIdByRealtyApiModel getRealtyIdsByPhone(@RequestParam("phone") String phone);
 
 }

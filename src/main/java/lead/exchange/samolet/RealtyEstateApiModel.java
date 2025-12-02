@@ -1,9 +1,12 @@
 package lead.exchange.samolet;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Data
 @RequiredArgsConstructor
@@ -12,6 +15,8 @@ public class RealtyEstateApiModel {
     private Address address;
     private Object animals;
 
+    @JsonProperty("ad_title")
+    private String title;
     @JsonProperty("area_common")
     private Double areaCommon;
 
@@ -156,7 +161,8 @@ public class RealtyEstateApiModel {
     @JsonProperty("monthly_income_type")
     private Integer monthlyIncomeType;
     private Boolean mortgage;
-    private String mydescription;
+    @JsonProperty("my_description")
+    private String description;
     private Object parking;
 
     @JsonProperty("parking_price")
@@ -167,6 +173,8 @@ public class RealtyEstateApiModel {
 
     @JsonProperty("pass_status")
     private Integer passStatus;
+
+    @JsonInclude(Include.NON_NULL)
     private List<Photo> photos;
 
     @JsonProperty("place_id")
@@ -241,7 +249,7 @@ public class RealtyEstateApiModel {
 
     @RequiredArgsConstructor
     @Data
-    public class Address {
+    public static class Address {
 
         private Double latitude;
         private Double longitude;
@@ -372,9 +380,9 @@ public class RealtyEstateApiModel {
         private Object districtSetManually;
     }
 
-    @RequiredArgsConstructor
     @Data
-    public class Photo {
+    @NoArgsConstructor
+    public static class Photo {
 
         private String big;
         private String small;

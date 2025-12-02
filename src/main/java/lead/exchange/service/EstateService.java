@@ -4,7 +4,6 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-import lead.exchange.dto.UpdateCommissionRequest;
 import lead.exchange.entity.Estate;
 import lead.exchange.exception.ResourceNotFoundException;
 import lead.exchange.model.EstateStatus;
@@ -38,19 +37,5 @@ public class EstateService {
         return estateRepository.save(estate);
     }
 
-    public Estate updateCommission(UUID estateId, UpdateCommissionRequest request) {
-        Estate estate = findById(estateId);
-
-        if (request.getTotalCommissionRate() != null) {
-            estate.setTotalCommissionRate(request.getTotalCommissionRate());
-        }
-
-        if (request.getCommissionShare() != null) {
-            estate.setCommissionShare(request.getCommissionShare());
-        }
-
-        estate.setUpdatedAt(LocalDateTime.now(clock));
-        return estateRepository.save(estate);
-    }
 
 }

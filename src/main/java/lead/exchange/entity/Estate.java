@@ -22,7 +22,7 @@ public class Estate {
     @Id
     @Column("id")
     private UUID id;
-    @Column("exteranl_id")
+    @Column("external_id")
     private Long externalId;
     @Column("user_id")
     private UUID userId;
@@ -36,8 +36,6 @@ public class Estate {
     private LocalDateTime createdAt;
     @Column("updated_at")
     private LocalDateTime updatedAt;
-    @Column("external_id")
-    private String externalId;
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt.truncatedTo(ChronoUnit.MICROS);
