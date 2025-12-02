@@ -1,5 +1,9 @@
 package lead.exchange;
 
+import java.time.Clock;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
 import lead.exchange.entity.Estate;
 import lead.exchange.entity.Lead;
 import lead.exchange.entity.Match;
@@ -15,12 +19,6 @@ import lead.exchange.repository.MatchRepository;
 import lead.exchange.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-
-import java.time.Clock;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
 
 @Component
 public class TestDataHelper {
@@ -46,6 +44,8 @@ public class TestDataHelper {
                 User.builder()
                         .telegramId("test_user_" + UUID.randomUUID())
                         .createdAt(now)
+                        .chatId(1l)
+                        .phone("78787897878")
                         .updatedAt(now)
                         .build()
         );
@@ -57,6 +57,8 @@ public class TestDataHelper {
                 User.builder()
                         .telegramId(telegramId)
                         .createdAt(now)
+                        .chatId(1l)
+                        .phone("78787897878")
                         .updatedAt(now)
                         .build()
         );
@@ -83,6 +85,7 @@ public class TestDataHelper {
                         .commissionShare(50.0)
                         .createdAt(now)
                         .updatedAt(now)
+                        .name(userId.toString())
                         .build()
         );
     }
@@ -91,10 +94,9 @@ public class TestDataHelper {
         EstateAttributes attributes = EstateAttributes.builder()
                 .title("Beautiful Apartment")
                 .description("Spacious apartment in city center")
-                .address("123 Main St")
-                .price(150000.0)
-                .area(75)
-                .bedrooms(2)
+                .price(150000L)
+                .areaCommon(75.0)
+                .rooms(2)
                 .photos(List.of("photo1.jpg", "photo2.jpg"))
                 .build();
 
@@ -106,6 +108,7 @@ public class TestDataHelper {
                         .attributes(attributes)
                         .totalCommissionRate(5.0)
                         .commissionShare(50.0)
+                        .externalId(1l)
                         .status(EstateStatus.ACTIVE)
                         .createdAt(now)
                         .updatedAt(now)
@@ -113,16 +116,39 @@ public class TestDataHelper {
         );
     }
 
-    public Match createTestMatch(UUID leadId, UUID estateId) {
+    public Match createTestMatch(UUID leadId, UUID estateId, UUID testUserId) {
         LocalDateTime now = LocalDateTime.now(clock);
 
         return matchRepository.save(
                 Match.builder()
                         .leadId(leadId)
                         .estateId(estateId)
-                        .status(MatchStatus.PENDING)
+                        .estateStatus(MatchStatus.ACCEPTED)
+                        .leadStatus(MatchStatus.ACCEPTED)
+                        .leadCommission(1.0)
+                        .updatedBy(testUserId)
+                        .createdAt(now)
+                        .updatedAt(now)
                         .matchedAt(now)
                         .build()
+        );
+    }
+
+    public Match createTestMatch(UUID leadId, UUID estateId, UUID testUserId, MatchStatus leadStatus, MatchStatus estateStatus) {
+        LocalDateTime now = LocalDateTime.now(clock);
+
+        return matchRepository.save(
+            Match.builder()
+                .leadId(leadId)
+                .estateId(estateId)
+                .estateStatus(estateStatus)
+                .leadStatus(leadStatus)
+                .leadCommission(1.0)
+                .updatedBy(testUserId)
+                .createdAt(now)
+                .updatedAt(now)
+                .matchedAt(now)
+                .build()
         );
     }
 }

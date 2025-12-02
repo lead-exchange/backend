@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 @Configuration
 public class JdbcConfig extends AbstractJdbcConfiguration {
 
-    private static final String jsonbType = "jsonb";
+    private static final String JSONB_TYPE = "jsonb";
 
     @Override
     public JdbcCustomConversions jdbcCustomConversions() {
@@ -41,7 +41,7 @@ public class JdbcConfig extends AbstractJdbcConfiguration {
         public PGobject convert(Requirements source) {
             try {
                 PGobject pgObject = new PGobject();
-                pgObject.setType(jsonbType);
+                pgObject.setType(JSONB_TYPE);
                 pgObject.setValue(objectMapper.writeValueAsString(source));
                 return pgObject;
             } catch (JsonProcessingException | SQLException e) {
@@ -75,7 +75,7 @@ public class JdbcConfig extends AbstractJdbcConfiguration {
         public PGobject convert(EstateAttributes source) {
             try {
                 PGobject pgObject = new PGobject();
-                pgObject.setType(jsonbType);
+                pgObject.setType(JSONB_TYPE);
                 pgObject.setValue(objectMapper.writeValueAsString(source));
                 return pgObject;
             } catch (JsonProcessingException | SQLException e) {

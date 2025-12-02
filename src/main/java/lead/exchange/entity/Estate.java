@@ -22,6 +22,8 @@ public class Estate {
     @Id
     @Column("id")
     private UUID id;
+    @Column("external_id")
+    private Long externalId;
     @Column("user_id")
     private UUID userId;
     private EstateAttributes attributes;
@@ -34,6 +36,14 @@ public class Estate {
     private LocalDateTime createdAt;
     @Column("updated_at")
     private LocalDateTime updatedAt;
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt.truncatedTo(ChronoUnit.MICROS);
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt.truncatedTo(ChronoUnit.MICROS);
+    }
 
     public static class EstateBuilder {
 

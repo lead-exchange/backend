@@ -35,10 +35,17 @@
         <maven-enforcer-plugin.version>3.4.1</maven-enforcer-plugin.version>
         <git-commit-id-maven-plugin.version>7.0.0</git-commit-id-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
+        <jackson-datatype.version>2.15.2</jackson-datatype.version>
+        <springdoc-openapi-starter-webmvc-ui.version>2.6.0</springdoc-openapi-starter-webmvc-ui.version>
 
         <!-- Linters -->
         <maven-checkstyle-plugin.version>3.3.1</maven-checkstyle-plugin.version>
         <checkstyle.version>10.12.7</checkstyle.version>
+        <spring-cloud.version>2023.0.4</spring-cloud.version>
+
+        <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
+        <mapstruct.version>1.6.3</mapstruct.version>
+        <lombok.version>1.18.40</lombok.version>
     </properties>
 
     <dependencyManagement>
@@ -73,7 +80,14 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.datatype</groupId>
                 <artifactId>jackson-datatype-jsr310</artifactId>
-                <version>2.15.2</version>
+                <version>${jackson-datatype.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -92,12 +106,21 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-log4j2</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${mapstruct.version}</version>
         </dependency>
 
         <!-- Telegram -->
@@ -130,7 +153,8 @@
         </dependency>
         <dependency>
             <groupId>io.rest-assured</groupId>
-            <artifactId>spring-web-test-client</artifactId>
+            <artifactId>spring-mock-mvc</artifactId>
+            <version>5.5.0</version> <!-- Use the latest stable version -->
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -180,7 +204,28 @@
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>2.6.0</version>
+            <version>${springdoc-openapi-starter-webmvc-ui.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-ratelimiter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-spring-boot3</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-feign</artifactId>
+        </dependency>
+        <!-- Maven -->
+        <dependency>
+            <groupId>org.springframework.retry</groupId>
+            <artifactId>spring-retry</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aspects</artifactId>
         </dependency>
 
 
@@ -254,6 +299,24 @@
                     <parameters>true</parameters>
                     <compilerArgument>-Xlint:all</compilerArgument>
                     <compilerArgument>-Xdoclint:all</compilerArgument>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${mapstruct.version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok-mapstruct-binding</artifactId>
+                            <version>${lombok-mapstruct-binding.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+
                 </configuration>
             </plugin>
             <plugin>
@@ -350,6 +413,11 @@
                     <logViolationsToConsole>true</logViolationsToConsole>
                     <failsOnError>true</failsOnError>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-maven-plugin</artifactId>
+                <version>9.22.3</version>
             </plugin>
         </plugins>
     </build>

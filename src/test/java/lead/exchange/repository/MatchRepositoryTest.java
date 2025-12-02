@@ -34,7 +34,7 @@ class MatchRepositoryTest extends IntegrationTest {
         User testUser = testData.createTestUser();
         testLead= testData.createTestLead(testUser.getId());
         testEstate = testData.createTestEstate(testUser.getId());
-        testMatch = testData.createTestMatch(testLead.getId(), testEstate.getId());
+        testMatch = testData.createTestMatch(testLead.getId(), testEstate.getId(), testUser.getId());
     }
 
     @Test
@@ -44,7 +44,8 @@ class MatchRepositoryTest extends IntegrationTest {
         assertNotNull(testMatch.getId());
         assertEquals(testLead.getId(), testMatch.getLeadId());
         assertEquals(testEstate.getId(), testMatch.getEstateId());
-        assertEquals(MatchStatus.PENDING, testMatch.getStatus());
+        assertEquals(MatchStatus.ACCEPTED, testMatch.getEstateStatus());
+        assertEquals(MatchStatus.ACCEPTED, testMatch.getLeadStatus());
     }
 
     @Test

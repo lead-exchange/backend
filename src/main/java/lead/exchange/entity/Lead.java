@@ -24,6 +24,8 @@ public class Lead {
     private UUID id;
     @Column("user_id")
     private UUID userId;
+    @Column("name")
+    private String name;
     private Requirements requirements;
     private LeadStatus status;
     @Column("commission_share")
@@ -32,6 +34,14 @@ public class Lead {
     private LocalDateTime createdAt;
     @Column("updated_at")
     private LocalDateTime updatedAt;
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt.truncatedTo(ChronoUnit.MICROS);
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt.truncatedTo(ChronoUnit.MICROS);
+    }
 
     public static class LeadBuilder {
 
