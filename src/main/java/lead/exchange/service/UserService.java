@@ -27,28 +27,12 @@ public class UserService {
                 ));
     }
 
-    public String getUserPhone(UUID userId) {
-        return userRepository.getUserPhone(userId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Can't get phone: user not found with userId = " + userId
-                ));
-    }
+    public User fillUserEstates(UUID userId) {
+        User user = userRepository.findByUserId(userId)
+            .orElseThrow(() -> new ResourceNotFoundException(
+                "User not found with userId: " + userId
+            ));
 
-    public List<User> getAll(long offset, long batchSize) {
-        return userRepository.findBatch(batchSize, offset);
-    }
-
-    public User updatePhone(UUID userId, String newPhone) {
-
-        User user = getUserById(userId);
-
-        if (newPhone.equals(user.getPhone())) {
-            return user;
-        }
-
-        user.setPhone(newPhone);
-        userRepository.save(user);
-
-        return user;
+        return null;
     }
 }

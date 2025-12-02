@@ -22,6 +22,8 @@ public class Estate {
     @Id
     @Column("id")
     private UUID id;
+    @Column("exteranl_id")
+    private Long externalId;
     @Column("user_id")
     private UUID userId;
     private EstateAttributes attributes;
