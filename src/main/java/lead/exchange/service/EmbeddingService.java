@@ -2,6 +2,7 @@ package lead.exchange.service;
 
 import java.util.*;
 import lead.exchange.entity.Estate;
+import lead.exchange.entity.Lead;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
@@ -15,8 +16,30 @@ public class EmbeddingService {
     private final RestTemplate restTemplate;
     private final EstateService estateService;
     private static final String YANDEX_EMBEDDING_URL = "https://llm.api.cloud.yandex.net/foundationModels/v1/textEmbedding";
-    public List<?> generateEmbedding(String text) {
 
+    public double compareObjectsDescription(Lead lead, Estate estate) {
+        if (estate.getAttributes().getDescription() == null || lead.getRequirements().getDescription() == null) {
+            return -1;
+        }
+
+        List<Float> estateVector = getEmbeddingVectorForString(estate.getAttributes().getDescription());
+        List<Float> leadVector = getEmbeddingVectorForString(lead.getRequirements().getDescription());
+
+        return calculateCosineSimilarity(estateVector, leadVector);
+    }
+
+
+    private List<Float> getEmbeddingVectorForString(String description) {
+        List<?> embeddingResult = generateEmbedding(description);
+
+        //Иногда приходит список в списке, поэтому нужна такая проверка
+        if (embeddingResult != null && embeddingResult.getFirst() != null && embeddingResult.getFirst() instanceof List) {
+            return (List<Float>) embeddingResult.get(0);
+        }
+        return (List<Float>) embeddingResult;
+    }
+
+    private List<?> generateEmbedding(String text) {
         try {
             Map<String, Object> requestBody = new HashMap<>();
             requestBody.put("modelUri", "emb://b1gpnhcroeb4cb946s5j/text-search-query/latest");
@@ -47,31 +70,10 @@ public class EmbeddingService {
             return null;
         }
     }
-    public void comparisonEstates(){
-        List<Estate> estates = estateService.getAllEstate();
-        Map<Estate,List<Float>> mapEstateVectorEmbedding =new HashMap<>();
-        for(Estate estate:estates){
-            //Иногда приходит список в списке, поэтому нужна такая проверка
-            List<?> embeddingResult =generateEmbedding(estate.getAttributes().getDescription());
-            if (embeddingResult.getFirst() instanceof List) {
-                List<Float> vector = (List<Float>) embeddingResult.get(0);
-                mapEstateVectorEmbedding.put(estate, vector);
-            } else {
-                mapEstateVectorEmbedding.put(estate, (List<Float>) embeddingResult);
-            }
 
-        }
-        for( int i=0;i<estates.size();i++){
-            for (int j = i+1; j < estates.size(); j++) {
-                System.out.println(estates.get(i).getId()+"  "+estates.get(j).getId()+"  "+calculateCosineSimilarity((List<Float>) mapEstateVectorEmbedding.get(estates.get(i)), (List<Float>) mapEstateVectorEmbedding.get(estates.get(j))));
-            }
-        }
-    }
-
-
-    public double calculateCosineSimilarity(List<? extends Number> vector1, List<? extends Number> vector2) {
+    private double calculateCosineSimilarity(List<? extends Number> vector1, List<? extends Number> vector2) {
         if (vector1 == null || vector2 == null || vector1.size() != vector2.size()) {
-            return 0.0;
+            return -1;
         }
 
         double dotProduct = 0.0;
@@ -88,7 +90,7 @@ public class EmbeddingService {
         }
 
         if (norm1 == 0 || norm2 == 0) {
-            return 0.0;
+            return -1;
         }
 
         double similarity = dotProduct / (Math.sqrt(norm1) * Math.sqrt(norm2));

@@ -23,9 +23,6 @@ public class EstateService {
         userService.getUserById(userId);
         return estateRepository.findByUserId(userId);
     }
-    public List<Estate> getAllEstate(){
-        return estateRepository.findAll();
-    }
 
     public Estate findById(UUID estateId) {
         return estateRepository.findById(estateId).orElseThrow(

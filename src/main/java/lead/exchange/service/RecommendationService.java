@@ -22,20 +22,26 @@ import org.springframework.util.CollectionUtils;
 @Service
 @RequiredArgsConstructor
 public class RecommendationService {
-
-    public static final double BEDROOM_SCORE_CONST = 3.0;
-    public static final double PERSENT = 100.0;
-    private final RecommendationsRepository recommendationRepository;
-    private final LeadRepository leadRepository;
-    private final EstateRepository estateRepository;
+    private static final double BEDROOM_SCORE_CONST = 3.0;
+    private static final double PERCENT = 100.0;
     private final static double W_TYPE = 0.1;
     private final static double W_PRICE = 0.35;
     private final static double W_AREA = 0.25;
     private final static double W_LOCATION = 0.2;
     private final static double W_BEDROOMS = 0.1;
+    private final static double W_COMMISSION = 0.15;
+    private final static double W_VECTOR_SIMILARITY = 0.15;
+
+    private final static int HARD_LIMIT = 10;
+
+    private final RecommendationsRepository recommendationRepository;
+    private final LeadRepository leadRepository;
+    private final EstateRepository estateRepository;
+    private final EmbeddingService embeddingService;
+
 
     public List<Estate> getRecosByLeadId(UUID leadId) {
-        List<Recommendation> recommendations = recommendationRepository.getListForLead(leadId);
+        List<Recommendation> recommendations = recommendationRepository.getListForLead(leadId, HARD_LIMIT);
         if (CollectionUtils.isEmpty(recommendations)) {
             throw new ResourceNotFoundException("Not found with recommendations for lead: " + leadId);
         }
@@ -52,7 +58,7 @@ public class RecommendationService {
     }
 
     public List<Lead> getRecosByEstateId(UUID estateId) {
-        List<Recommendation> recommendations = recommendationRepository.getListForEstate(estateId);
+        List<Recommendation> recommendations = recommendationRepository.getListForEstate(estateId, HARD_LIMIT);
         if (CollectionUtils.isEmpty(recommendations)) {
             throw new ResourceNotFoundException("Not found with recommendations for estate: " + estateId);
         }
@@ -75,7 +81,6 @@ public class RecommendationService {
 
     public void initiateRecommendations() {
         recommendationRepository.deleteAll();
-        //todo filter entity with matches
         List<Lead> leads = leadRepository.findAll();
         List<Estate> estates = estateRepository.findAll();
 
@@ -94,7 +99,45 @@ public class RecommendationService {
         }
     }
 
-    public ScoreCalculationResult calculateSimilarityScore(Lead lead, Estate estate) {
+    public void initiateRecommendationsForLead(UUID leadId) {
+        Lead lead = leadRepository.findById(leadId).orElse(null);
+        if (lead == null) {
+            throw new ResourceNotFoundException("Not found lead with id: %s, while recommendations initialization".formatted(leadId));
+        }
+
+        List<Estate> estates = estateRepository.findAll();
+
+        for (Estate estate : estates) {
+            recommendationRepository.save(createRecommendationEntity(lead, estate));
+        }
+    }
+
+    public void initiateRecommendationsForEstate(UUID estateId) {
+        Estate estate = estateRepository.findById(estateId).orElse(null);
+        if (estate == null) {
+            throw new ResourceNotFoundException("Not found estate with id: %s, while recommendations initialization".formatted(estate));
+        }
+
+        List<Lead> leads = leadRepository.findAll();
+
+        for (Lead lead : leads) {
+            recommendationRepository.save(createRecommendationEntity(lead, estate));
+        }
+    }
+
+    private Recommendation createRecommendationEntity(Lead lead, Estate estate) {
+        Recommendation rec = new Recommendation();
+        rec.setSourceId(lead.getId());
+        rec.setSourceType("lead");
+        rec.setTargetId(estate.getId());
+
+        ScoreCalculationResult score = calculateSimilarityScore(lead, estate);
+        rec.setScore(score.score());
+        rec.setReason(score.reason());
+        return rec;
+    }
+
+    private ScoreCalculationResult calculateSimilarityScore(Lead lead, Estate estate) {
         double score = 0.0;
         double totalWeight = 0.0;
         Requirements requirements = lead.getRequirements();
@@ -173,7 +216,51 @@ public class RecommendationService {
             }
         }
 
-        double normalizedScore = totalWeight > 0 ? Math.round((score / totalWeight) * PERSENT) / PERSENT : 0.0;
+        // --- Commission Share ---
+        if (lead.getCommissionShare() != null && estate.getCommissionShare() != null) {
+            totalWeight += W_COMMISSION;
+
+            double leadComm = lead.getCommissionShare();
+            double estateComm = estate.getCommissionShare();
+            double diff = Math.abs(leadComm - estateComm); // разница в процентах
+
+            double commissionScore;
+            if (diff <= 10) {
+                commissionScore = 1.0; // идеально
+            } else if (diff >= 30) {
+                commissionScore = 0.0; // критично
+            } else {
+                // линейное падение от 10% до 30%
+                commissionScore = 1.0 - ((diff - 10) / 20.0); // 20 = 30-10
+            }
+
+            score += W_COMMISSION * commissionScore;
+
+            if (W_COMMISSION * commissionScore > maxSimilarityValue) {
+                maxSimilarityValue = W_COMMISSION * commissionScore;
+                maxSimilarityAttribute = "commissionShare";
+            }
+        }
+
+        // --- Описание объекта / семантическая близость (Embedding) ---
+        try {
+            Double similarity = embeddingService.compareObjectsDescription(lead, estate);
+            if (similarity != null) {
+                totalWeight += W_VECTOR_SIMILARITY;
+
+                // similarity ∈ [0..1] — готовый коэффициент
+                score += W_VECTOR_SIMILARITY * similarity;
+
+                if (W_VECTOR_SIMILARITY * similarity > maxSimilarityValue) {
+                    maxSimilarityValue = W_VECTOR_SIMILARITY * similarity;
+                    maxSimilarityAttribute = "embedding(description)";
+                }
+            }
+        } catch (Exception ex) {
+            System.err.println("Embedding compare failed: " + ex.getMessage());
+        }
+
+        double normalizedScore = totalWeight > 0 ? Math.round((score / totalWeight) * PERCENT) / PERCENT : 0.0;
         return new ScoreCalculationResult(normalizedScore, maxSimilarityAttribute);
     }
 }
