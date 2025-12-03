@@ -33,6 +33,9 @@ public class TopnlabApiService {
     private String token;
 
     public void updateEstates(UUID userId, String phone) {
+        if (phone == null) {
+            log.info("Skipping update");
+        }
         List<Long> ids = analyticsplusApi.getRealtyIdsByPhone(phone).ids();
 
         for (Long id : ids) {
