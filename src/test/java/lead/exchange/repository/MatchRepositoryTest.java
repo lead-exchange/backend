@@ -4,6 +4,8 @@ import lead.exchange.IntegrationTest;
 import lead.exchange.entity.Estate;
 import lead.exchange.entity.Lead;
 import lead.exchange.entity.Match;
+import lead.exchange.entity.MatchWithEstate;
+import lead.exchange.entity.MatchWithLead;
 import lead.exchange.entity.User;
 import lead.exchange.model.MatchStatus;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,7 +64,7 @@ class MatchRepositoryTest extends IntegrationTest {
     @Rollback
     @Transactional
     void findByLeadId_shouldReturnMatches() {
-        List<Match> matches = matchRepository.findByLeadId(testLead.getId());
+        List<MatchWithEstate> matches = matchRepository.findByLeadId(testLead.getId());
 
         assertFalse(matches.isEmpty());
         assertEquals(1, matches.size());
@@ -73,7 +75,7 @@ class MatchRepositoryTest extends IntegrationTest {
     @Rollback
     @Transactional
     void findByEstateId_shouldReturnMatches() {
-        List<Match> matches = matchRepository.findByEstateId(testEstate.getId());
+        List<MatchWithLead> matches = matchRepository.findByEstateId(testEstate.getId());
 
         assertFalse(matches.isEmpty());
         assertEquals(1, matches.size());

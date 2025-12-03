@@ -4,6 +4,8 @@ import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lead.exchange.dto.CreateMatchDto;
+import lead.exchange.dto.ResponseMatchWithEstateDto;
+import lead.exchange.dto.ResponseMatchWithLeadDto;
 import lead.exchange.dto.UpdateMatchDto;
 import lead.exchange.entity.Match;
 import lead.exchange.service.MatchService;
@@ -37,15 +39,13 @@ public class MatchController {
     }
 
     @GetMapping("/lead/{leadId}")
-    public ResponseEntity<List<Match>> getMatchesByLeadId(@PathVariable UUID leadId) {
-        List<Match> matches = matchService.getMatchesByLeadId(leadId);
-        return ResponseEntity.ok(matches);
+    public ResponseEntity<List<ResponseMatchWithEstateDto>> getMatchesByLeadId(@PathVariable UUID leadId) {
+        return ResponseEntity.ok(matchService.getMatchesByLeadId(leadId));
     }
 
     @GetMapping("/estate/{estateId}")
-    public ResponseEntity<List<Match>> getMatchesByEstateId(@PathVariable UUID estateId) {
-        List<Match> matches = matchService.getMatchesByEstateId(estateId);
-        return ResponseEntity.ok(matches);
+    public ResponseEntity<List<ResponseMatchWithLeadDto>> getMatchesByEstateId(@PathVariable UUID estateId) {
+        return ResponseEntity.ok(matchService.getMatchesByEstateId(estateId));
     }
 
     @GetMapping("/{matchId}")

@@ -274,22 +274,22 @@ public class RealtyEstateApiModel {
         private Object countyType;
 
         @JsonProperty("city_name")
-        private Object cityName;
+        private String cityName;
 
         @JsonProperty("city_id")
         private Object cityId;
 
         @JsonProperty("city_type")
-        private Object cityType;
+        private String cityType;
 
         @JsonProperty("place_name")
-        private Object placeName;
+        private String placeName;
 
         @JsonProperty("place_id")
         private Object placeId;
 
         @JsonProperty("place_type")
-        private Object placeType;
+        private String placeType;
 
         @JsonProperty("external_name")
         private String externalName;
@@ -310,17 +310,17 @@ public class RealtyEstateApiModel {
         private Object districtType;
 
         @JsonProperty("street_name")
-        private Object streetName;
+        private String streetName;
 
         @JsonProperty("street_id")
         private Object streetId;
 
         @JsonProperty("street_type")
-        private Object streetType;
+        private String streetType;
         private String house;
-        private Object corpus;
-        private Object litera;
-        private Object building;
+        private String corpus;
+        private String litera;
+        private String building;
 
         @JsonProperty("avito_city_id")
         private Object avitoCityId;

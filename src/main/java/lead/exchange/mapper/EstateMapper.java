@@ -1,6 +1,8 @@
 package lead.exchange.mapper;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lead.exchange.model.EstateAttributes;
 import lead.exchange.samolet.RealtyEstateApiModel;
 import lead.exchange.samolet.RealtyEstateApiModel.Address;
@@ -18,6 +20,7 @@ public interface EstateMapper {
 
 
     @Mapping(target = "photos", expression = "java(getPhotos(model.getPhotos()))")
+    @Mapping(target = "title", expression = "java(getTitle(model))")
     EstateAttributes toEntity(RealtyEstateApiModel model);
 
     EstateAttributes.Address toEntity(Address model);
@@ -32,6 +35,36 @@ public interface EstateMapper {
                     return p.getSmall();
                 }
             }).toList();
+    }
+
+    default String getTitle(RealtyEstateApiModel model) {
+        if (model.getTitle() != null) {
+            return model.getTitle();
+        }
+        Address address = model.getAddress();
+
+        if (address == null) {
+            return "";
+        }
+
+        return Stream.of(
+                address.getRegionName(),
+                address.getRegionType(),
+                address.getCityType(),
+                address.getCityName(),
+                address.getPlaceType(),
+                address.getPlaceName(),
+                address.getStreetType(),
+                address.getStreetName(),
+                address.getHouse(),
+                address.getCorpus(),
+                address.getLitera(),
+                address.getBuilding()
+            )
+            .filter(value -> value != null && !value.trim().isEmpty())
+            .map(String::trim)
+            .collect(Collectors.joining(" "))
+            .trim();
     }
 
 }
