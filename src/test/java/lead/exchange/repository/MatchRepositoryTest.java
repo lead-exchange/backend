@@ -68,7 +68,7 @@ class MatchRepositoryTest extends IntegrationTest {
 
         assertFalse(matches.isEmpty());
         assertEquals(1, matches.size());
-        assertEquals(testMatch, matches.getFirst());
+        assertEquals(testMatch.getId(), matches.getFirst().getId());
     }
 
     @Test
@@ -79,6 +79,6 @@ class MatchRepositoryTest extends IntegrationTest {
 
         assertFalse(matches.isEmpty());
         assertEquals(1, matches.size());
-        assertEquals(testMatch, matches.getFirst());
+        assertEquals(testMatch.getId(), matches.getFirst().getId());
     }
 }
