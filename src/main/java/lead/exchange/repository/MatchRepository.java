@@ -5,17 +5,22 @@ import java.util.Optional;
 import java.util.UUID;
 import lead.exchange.entity.Match;
 import lead.exchange.entity.MatchUpdateEntity;
+import lead.exchange.entity.MatchWithEstate;
+import lead.exchange.entity.MatchWithLead;
 import org.springframework.data.jdbc.repository.query.Modifying;
 import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.ListCrudRepository;
 
 public interface MatchRepository extends ListCrudRepository<Match, UUID> {
 
-    @Query("SELECT * FROM matches WHERE lead_id = :leadId")
-    List<Match> findByLeadId(UUID leadId);
+    @Query("SELECT matches.*, estates.attributes->>'title' as estate_title, "
+        + "ARRAY (select jsonb_array_elements_text(estates.attributes->'photos')) as estate_photos "
+        + "FROM matches JOIN estates on estates.id = estate_id WHERE lead_id = :leadId")
+    List<MatchWithEstate> findByLeadId(UUID leadId);
 
-    @Query("SELECT * FROM matches WHERE estate_id = :estateId")
-    List<Match> findByEstateId(UUID estateId);
+    @Query("SELECT matches.*, leads.name as lead_name FROM matches "
+        + "JOIN leads on lead_id=leads.id WHERE estate_id = :estateId")
+    List<MatchWithLead> findByEstateId(UUID estateId);
 
     @Query("SELECT * FROM matches WHERE estate_id = :estateId and lead_id =:leadId ")
     Optional<Match> findByEstateIdAndLeadId(UUID estateId, UUID leadId);

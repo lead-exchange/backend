@@ -3,6 +3,8 @@ package lead.exchange.service;
 import java.util.List;
 import java.util.UUID;
 import lead.exchange.dto.CreateMatchDto;
+import lead.exchange.dto.ResponseMatchWithEstateDto;
+import lead.exchange.dto.ResponseMatchWithLeadDto;
 import lead.exchange.dto.UpdateMatchDto;
 import lead.exchange.dto.UserType;
 import lead.exchange.entity.Match;
@@ -33,9 +35,9 @@ public class MatchService {
     private final EstateRepository estateRepository;
     private final MatchMapper mapper;
 
-    public List<Match> getMatchesByLeadId(UUID leadId) {
+    public List<ResponseMatchWithEstateDto> getMatchesByLeadId(UUID leadId) {
         log.debug("Fetching matches by lead id: {}", leadId);
-        return matchRepository.findByLeadId(leadId);
+        return matchRepository.findByLeadId(leadId).stream().map(mapper::toDto).toList();
     }
 
     public Match getMatchById(UUID matchId) {
@@ -44,9 +46,9 @@ public class MatchService {
             .orElseThrow(() -> new IllegalArgumentException("Match with this id not found"));
     }
 
-    public List<Match> getMatchesByEstateId(UUID estateId) {
+    public List<ResponseMatchWithLeadDto> getMatchesByEstateId(UUID estateId) {
         log.debug("Fetching matches by estate id: {}", estateId);
-        return matchRepository.findByEstateId(estateId);
+        return matchRepository.findByEstateId(estateId).stream().map(mapper::toDto).toList();
     }
 
     @Transactional

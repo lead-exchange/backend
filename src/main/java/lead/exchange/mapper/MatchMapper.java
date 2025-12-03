@@ -3,18 +3,28 @@ package lead.exchange.mapper;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import lead.exchange.dto.CreateMatchDto;
+import lead.exchange.dto.ResponseMatchWithEstateDto;
+import lead.exchange.dto.ResponseMatchWithLeadDto;
 import lead.exchange.dto.UpdateMatchDto;
 import lead.exchange.entity.Match;
 import lead.exchange.entity.MatchUpdateEntity;
+import lead.exchange.entity.MatchWithEstate;
+import lead.exchange.entity.MatchWithLead;
 import lead.exchange.model.MatchStatus;
 import lombok.RequiredArgsConstructor;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
 
 @Component
 @RequiredArgsConstructor
-public class MatchMapper {
+@Mapper(componentModel = SPRING)
+public abstract class MatchMapper {
 
-    private final Clock clock;
+    @Autowired
+    private Clock clock;
 
     public MatchUpdateEntity toEntity(UpdateMatchDto matchDto) {
         LocalDateTime now = LocalDateTime.now(clock);
@@ -44,4 +54,10 @@ public class MatchMapper {
             .createdAt(now)
             .build();
     }
+
+
+    public abstract ResponseMatchWithLeadDto toDto(MatchWithLead match);
+
+    @Mapping(target = "estatePhoto", expression = "java(match.getEstatePhotos().getFirst())")
+    public abstract ResponseMatchWithEstateDto toDto(MatchWithEstate match);
 }
