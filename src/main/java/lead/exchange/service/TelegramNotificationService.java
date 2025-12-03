@@ -53,7 +53,7 @@ public class TelegramNotificationService {
         requestedPhone.add(chatId);
     }
 
-    private class MyUpdateListener implements UpdatesListener {
+    private static final class MyUpdateListener implements UpdatesListener {
 
         @Override
         public int process(List<Update> updates) {

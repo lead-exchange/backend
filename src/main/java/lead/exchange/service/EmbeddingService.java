@@ -1,11 +1,19 @@
 package lead.exchange.service;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import lead.exchange.entity.Estate;
 import lead.exchange.entity.Lead;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -33,7 +41,9 @@ public class EmbeddingService {
         List<?> embeddingResult = generateEmbedding(description);
 
         //Иногда приходит список в списке, поэтому нужна такая проверка
-        if (embeddingResult != null && embeddingResult.getFirst() != null && embeddingResult.getFirst() instanceof List) {
+        if (embeddingResult != null
+                && embeddingResult.getFirst() != null
+                && embeddingResult.getFirst() instanceof List) {
             return (List<Float>) embeddingResult.get(0);
         }
         return (List<Float>) embeddingResult;
