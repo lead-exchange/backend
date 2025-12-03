@@ -29,8 +29,19 @@ public class UserController {
             @Parameter(hidden = true) CurrentUser currentUser,
             @RequestParam("phone") String newPhone
     ) {
+        if (newPhone == null || !newPhone.matches("^7\\d{10}$")) {
+            return ResponseEntity.badRequest().build();
+        }
         return ResponseEntity.ok(userService.updatePhone(currentUser.getId(), newPhone));
     }
 
-    // TODO: нужно при создании пользователя подтягивать его объекты
+    @PatchMapping("/offer1-sign")
+    public ResponseEntity<User> signOffer1(@Parameter(hidden = true) CurrentUser currentUser) {
+        return ResponseEntity.ok(userService.signOffer1(currentUser.getId()));
+    }
+
+    @PatchMapping("/offer2-sign")
+    public ResponseEntity<User> signOffer2(@Parameter(hidden = true) CurrentUser currentUser) {
+        return ResponseEntity.ok(userService.signOffer2(currentUser.getId()));
+    }
 }

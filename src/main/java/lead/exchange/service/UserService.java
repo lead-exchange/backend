@@ -56,6 +56,28 @@ public class UserService {
         return saveUser(user);
     }
 
+    public User signOffer1(UUID userId) {
+        User user = getUserById(userId);
+
+        if (Boolean.TRUE.equals(user.getOffer1Signed())) {
+            return user;
+        }
+
+        user.setOffer1Signed(true);
+        return saveUser(user);
+    }
+
+    public User signOffer2(UUID userId) {
+        User user = getUserById(userId);
+
+        if (Boolean.TRUE.equals(user.getOffer2Signed())) {
+            return user;
+        }
+
+        user.setOffer2Signed(true);
+        return saveUser(user);
+    }
+
     public User saveUser(User user) {
         return userRepository.save(user);
     }

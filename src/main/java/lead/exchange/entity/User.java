@@ -30,6 +30,10 @@ public class User {
     private LocalDateTime updatedAt;
     @Column("phone")
     private String phone;
+    @Column("offer1_signed")
+    private Boolean offer1Signed;
+    @Column("offer2_signed")
+    private Boolean offer2Signed;
 
     public static class UserBuilder {
 
