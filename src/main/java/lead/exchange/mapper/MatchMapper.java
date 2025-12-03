@@ -4,6 +4,7 @@ import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.UUID;
 import java.util.List;
 import lead.exchange.dto.CreateMatchDto;
 import lead.exchange.dto.ResponseMatchWithEstateDto;
@@ -28,27 +29,27 @@ public abstract class MatchMapper {
     @Autowired
     private Clock clock;
 
-    public MatchUpdateEntity toEntity(UpdateMatchDto matchDto) {
+    public MatchUpdateEntity toEntity(UpdateMatchDto matchDto, UUID userId) {
         LocalDateTime now = LocalDateTime.now(clock);
         return new MatchUpdateEntity(
             matchDto.id(),
             matchDto.leadCommission(),
-            matchDto.updatedBy(),
+            userId,
             matchDto.comment(),
             matchDto.status(),
             now
         );
     }
 
-    public Match toEntity(CreateMatchDto matchDto) {
+    public Match toEntity(CreateMatchDto matchDto, UUID userId) {
         LocalDateTime now = LocalDateTime.now(clock);
 
         return Match.builder()
             .leadId(matchDto.leadId())
             .estateId(matchDto.estateId())
             .leadCommission(matchDto.leadCommission())
-            .updatedBy(matchDto.updatedBy())
             .comment(matchDto.comment())
+            .updatedBy(userId)
             .leadStatus(MatchStatus.UNDEFINED)
             .estateStatus(MatchStatus.UNDEFINED)
             .updatedAt(now)

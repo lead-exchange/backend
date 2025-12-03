@@ -3,6 +3,8 @@ package lead.exchange.controller;
 import io.swagger.v3.oas.annotations.Parameter;
 import java.util.List;
 import java.util.UUID;
+import lead.exchange.dto.LeadCreateDto;
+import lead.exchange.dto.LeadUpdateDto;
 import lead.exchange.entity.Lead;
 import lead.exchange.security.models.CurrentUser;
 import lead.exchange.service.LeadService;
@@ -36,12 +38,15 @@ public class LeadController {
     }
 
     @PostMapping
-    public ResponseEntity<Lead> createLead(@RequestBody Lead lead) {
-        return ResponseEntity.ok(leadService.createLead(lead));
+    public ResponseEntity<Lead> createLead(
+        @RequestBody LeadCreateDto lead,
+        @Parameter(hidden = true) CurrentUser currentUser
+    ) {
+        return ResponseEntity.ok(leadService.createLead(lead, currentUser.getId()));
     }
 
     @PutMapping("/{leadId}")
-    public ResponseEntity<Lead> updateLead(@PathVariable UUID leadId, @RequestBody Lead lead) {
+    public ResponseEntity<Lead> updateLead(@PathVariable UUID leadId, @RequestBody LeadUpdateDto lead) {
         return ResponseEntity.ok(leadService.updateLead(leadId, lead));
     }
 

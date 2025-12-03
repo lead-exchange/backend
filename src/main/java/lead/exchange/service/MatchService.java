@@ -55,7 +55,7 @@ public class MatchService {
     }
 
     @Transactional
-    public Match createMatch(CreateMatchDto dto) {
+    public Match createMatch(CreateMatchDto dto, UUID id) {
         log.info("Creating new match for lead: {} and estate: {}", dto.leadId(), dto.estateId());
         matchRepository.findByEstateIdAndLeadId(dto.estateId(), dto.leadId()).ifPresent(
             e -> {
@@ -70,9 +70,9 @@ public class MatchService {
             throw new ForbiddenException("Unable to create match with itself");
         }
 
-        Match match = mapper.toEntity(dto);
+        Match match = mapper.toEntity(dto, id);
 
-        UserType userType = getUserType(dto.leadId(), dto.estateId(), dto.updatedBy());
+        UserType userType = getUserType(dto.leadId(), dto.estateId(), id);
 
         switch (userType) {
             case LEAD -> {
@@ -94,12 +94,12 @@ public class MatchService {
     }
 
     @Transactional
-    public Match updateMatch(UpdateMatchDto dto) {
+    public Match updateMatch(UpdateMatchDto dto, UUID username) {
         Match createdMatch = matchRepository.findById(dto.id())
             .orElseThrow(() -> new ResourceNotFoundException(MATCH_WITH_THIS_ID_S_NOT_FOUND.formatted(dto.id())));
 
-        UserType userType = getUserType(createdMatch.getLeadId(), createdMatch.getEstateId(), dto.updatedBy());
-        MatchUpdateEntity toSave = mapper.toEntity(dto);
+        UserType userType = getUserType(createdMatch.getLeadId(), createdMatch.getEstateId(), username);
+        MatchUpdateEntity toSave = mapper.toEntity(dto, username);
 
         switch (userType) {
             case LEAD -> {
