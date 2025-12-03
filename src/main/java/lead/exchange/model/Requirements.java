@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 public class Requirements {
     // TODO: это примеры полей, конкретные поля нужно указать при реализации логики /create для лида
     private String propertyType;
+    private String description;
     private Double minPrice;
     private Double maxPrice;
     private Integer minArea;

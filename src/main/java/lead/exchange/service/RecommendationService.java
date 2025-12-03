@@ -22,20 +22,27 @@ import org.springframework.util.CollectionUtils;
 @Service
 @RequiredArgsConstructor
 public class RecommendationService {
-
-    public static final double BEDROOM_SCORE_CONST = 3.0;
-    public static final double PERSENT = 100.0;
-    private final RecommendationsRepository recommendationRepository;
-    private final LeadRepository leadRepository;
-    private final EstateRepository estateRepository;
+    private static final double BEDROOM_SCORE_CONST = 3.0;
+    private static final double PERCENT = 100.0;
     private final static double W_TYPE = 0.1;
     private final static double W_PRICE = 0.35;
     private final static double W_AREA = 0.25;
     private final static double W_LOCATION = 0.2;
     private final static double W_BEDROOMS = 0.1;
+    private final static double W_COMMISSION = 0.15;
+    private final static double W_VECTOR_SIMILARITY = 0.15;
+
+    private final static int HARD_LIMIT = 10;
+    public static final String LEAD = "lead";
+
+    private final RecommendationsRepository recommendationRepository;
+    private final LeadRepository leadRepository;
+    private final EstateRepository estateRepository;
+    private final EmbeddingService embeddingService;
+
 
     public List<Estate> getRecosByLeadId(UUID leadId) {
-        List<Recommendation> recommendations = recommendationRepository.getListForLead(leadId);
+        List<Recommendation> recommendations = recommendationRepository.getListForLead(leadId, HARD_LIMIT);
         if (CollectionUtils.isEmpty(recommendations)) {
             throw new ResourceNotFoundException("Not found with recommendations for lead: " + leadId);
         }
@@ -52,7 +59,7 @@ public class RecommendationService {
     }
 
     public List<Lead> getRecosByEstateId(UUID estateId) {
-        List<Recommendation> recommendations = recommendationRepository.getListForEstate(estateId);
+        List<Recommendation> recommendations = recommendationRepository.getListForEstate(estateId, HARD_LIMIT);
         if (CollectionUtils.isEmpty(recommendations)) {
             throw new ResourceNotFoundException("Not found with recommendations for estate: " + estateId);
         }
@@ -75,7 +82,6 @@ public class RecommendationService {
 
     public void initiateRecommendations() {
         recommendationRepository.deleteAll();
-        //todo filter entity with matches
         List<Lead> leads = leadRepository.findAll();
         List<Estate> estates = estateRepository.findAll();
 
@@ -85,7 +91,7 @@ public class RecommendationService {
 
                 Recommendation rec = new Recommendation();
                 rec.setSourceId(lead.getId());
-                rec.setSourceType("lead");
+                rec.setSourceType(LEAD);
                 rec.setTargetId(estate.getId());
                 rec.setScore(score.score());
                 rec.setReason(score.reason());
@@ -94,86 +100,165 @@ public class RecommendationService {
         }
     }
 
-    public ScoreCalculationResult calculateSimilarityScore(Lead lead, Estate estate) {
+    public void initiateRecommendationsForLead(UUID leadId) {
+        Lead lead = leadRepository.findById(leadId).orElse(null);
+        if (lead == null) {
+            throw new ResourceNotFoundException("Not found lead with id: %s, while recommendations initialization"
+                                                        .formatted(leadId));
+        }
+
+        List<Estate> estates = estateRepository.findAll();
+
+        for (Estate estate : estates) {
+            recommendationRepository.save(createRecommendationEntity(lead, estate));
+        }
+    }
+
+    public void initiateRecommendationsForEstate(UUID estateId) {
+        Estate estate = estateRepository.findById(estateId).orElse(null);
+        if (estate == null) {
+            throw new ResourceNotFoundException("Not found estate with id: %s, while recommendations initialization"
+                                                        .formatted(estate));
+        }
+
+        List<Lead> leads = leadRepository.findAll();
+
+        for (Lead lead : leads) {
+            recommendationRepository.save(createRecommendationEntity(lead, estate));
+        }
+    }
+
+    private Recommendation createRecommendationEntity(Lead lead, Estate estate) {
+        Recommendation rec = new Recommendation();
+        rec.setSourceId(lead.getId());
+        rec.setSourceType(LEAD);
+        rec.setTargetId(estate.getId());
+
+        ScoreCalculationResult score = calculateSimilarityScore(lead, estate);
+        rec.setScore(score.score());
+        rec.setReason(score.reason());
+        return rec;
+    }
+
+    private ScoreCalculationResult calculateSimilarityScore(Lead lead, Estate estate) {
         double score = 0.0;
         double totalWeight = 0.0;
-        Requirements requirements = lead.getRequirements();
-        EstateAttributes estateAttributes = estate.getAttributes();
 
-        // Веса признаков
+        List<AttributeResult> results = List.of(
+                calcPriceScore(lead, estate),
+                calcAreaScore(lead, estate),
+                calcBedroomScore(lead, estate),
+                calcCommissionScore(lead, estate),
+                calcEmbeddingScore(lead, estate)
+        );
 
-//        --- Тип недвижимости ---
-//        if (req.getPropertyType() != null && estateAttributes.getPropertyType() != null) {
-//            totalWeight += W_TYPE;
-//            if (req.getPropertyType().equalsIgnoreCase(estateAttributes.getPropertyType())) {
-//                score += W_TYPE;
-//            }
-//        }
+        String maxAttribute = null;
+        double maxValue = 0.0;
 
-        String maxSimilarityAttribute = null;
-        double maxSimilarityValue = 0;
+        for (AttributeResult r : results) {
+            score += r.score();
+            totalWeight += r.weight();
 
-        // --- Цена ---
-        if (
-            requirements.getMinPrice() != null
-                && requirements.getMaxPrice() != null
-                && estateAttributes.getPrice() != null
-        ) {
-            totalWeight += W_PRICE;
-            double avgPrice = (requirements.getMinPrice() + requirements.getMaxPrice()) / 2.0;
-            double range = requirements.getMaxPrice() - requirements.getMinPrice();
-            double diff = Math.abs(estateAttributes.getPrice() - avgPrice);
-            double priceScore = 1.0 - Math.min(diff / range, 1.0);
-            score += W_PRICE * priceScore;
-
-            if (W_PRICE * priceScore > maxSimilarityValue) {
-                maxSimilarityValue = W_PRICE * priceScore;
-                maxSimilarityAttribute = "price";
+            if (r.score() > maxValue) {
+                maxValue = r.score();
+                maxAttribute = r.attributeName();
             }
         }
 
-        // --- Площадь ---
-        if (
-            requirements.getMinArea() != null
-                && requirements.getMaxArea() != null
-                && estateAttributes.getAreaCommon() != null
-        ) {
-            totalWeight += W_AREA;
-            double avgArea = (requirements.getMinArea() + requirements.getMaxArea()) / 2.0;
-            double range = requirements.getMaxArea() - requirements.getMinArea();
-            double diff = Math.abs(estateAttributes.getAreaCommon() - avgArea);
-            double areaScore = 1.0 - Math.min(diff / range, 1.0);
-            score += W_AREA * areaScore;
+        double normalized = totalWeight > 0
+                ? Math.round((score / totalWeight) * PERCENT) / PERCENT
+                : 0.0;
 
-            if (W_AREA * areaScore > maxSimilarityValue) {
-                maxSimilarityValue = W_AREA * areaScore;
-                maxSimilarityAttribute = "area";
-            }
+        return new ScoreCalculationResult(normalized, maxAttribute);
+    }
+
+    private AttributeResult calcAreaScore(Lead lead, Estate estate) {
+        Requirements req = lead.getRequirements();
+        EstateAttributes attrs = estate.getAttributes();
+
+        if (req.getMinArea() == null || req.getMaxArea() == null || attrs.getAreaCommon() == null) {
+            return AttributeResult.empty();
         }
 
-        // --- Локации ---
-//        if (requirements.getLocations() != null && !requirements.getLocations().isEmpty()
-//        && estateAttributes.getLocation() != null) {
-//            totalWeight += W_LOCATION;
-//            boolean match = requirements.getLocations().stream()
-//                    .anyMatch(loc -> loc.equalsIgnoreCase(estateAttributes.getLocation()));
-//            score += W_LOCATION * (match ? 1.0 : 0.0);
-//        }
+        double avg = (req.getMinArea() + req.getMaxArea()) / 2.0;
+        double range = req.getMaxArea() - req.getMinArea();
+        double diff = Math.abs(attrs.getAreaCommon() - avg);
+        double factor = 1.0 - Math.min(diff / range, 1.0);
 
-        // --- Количество спален ---
-        if (requirements.getBedrooms() != null && estateAttributes.getRooms() != null) {
-            totalWeight += W_BEDROOMS;
-            double diff = Math.abs(requirements.getBedrooms() - estateAttributes.getRooms());
-            double bedroomScore = Math.max(0, 1.0 - diff / BEDROOM_SCORE_CONST);
-            score += W_BEDROOMS * bedroomScore;
+        double score = W_AREA * factor;
+        return new AttributeResult(W_AREA, score, "area");
+    }
 
-            if (W_BEDROOMS * bedroomScore > maxSimilarityValue) {
-                maxSimilarityValue = W_BEDROOMS * bedroomScore;
-                maxSimilarityAttribute = "bedrooms quantity";
-            }
+    private AttributeResult calcPriceScore(Lead lead, Estate estate) {
+        Requirements req = lead.getRequirements();
+        EstateAttributes attrs = estate.getAttributes();
+
+        if (req.getMinPrice() == null || req.getMaxPrice() == null || attrs.getPrice() == null) {
+            return AttributeResult.empty();
         }
 
-        double normalizedScore = totalWeight > 0 ? Math.round((score / totalWeight) * PERSENT) / PERSENT : 0.0;
-        return new ScoreCalculationResult(normalizedScore, maxSimilarityAttribute);
+        double avg = (req.getMinPrice() + req.getMaxPrice()) / 2.0;
+        double range = req.getMaxPrice() - req.getMinPrice();
+        double diff = Math.abs(attrs.getPrice() - avg);
+        double factor = 1.0 - Math.min(diff / range, 1.0);
+
+        double score = W_PRICE * factor;
+        return new AttributeResult(W_PRICE, score, "price");
+    }
+
+    private AttributeResult calcBedroomScore(Lead lead, Estate estate) {
+        Requirements req = lead.getRequirements();
+        EstateAttributes attrs = estate.getAttributes();
+
+        if (req.getBedrooms() == null || attrs.getRooms() == null) {
+            return AttributeResult.empty();
+        }
+
+        double diff = Math.abs(req.getBedrooms() - attrs.getRooms());
+        double factor = Math.max(0.0, 1.0 - diff / BEDROOM_SCORE_CONST);
+
+        double score = W_BEDROOMS * factor;
+        return new AttributeResult(W_BEDROOMS, score, "bedrooms");
+    }
+
+    private AttributeResult calcCommissionScore(Lead lead, Estate estate) {
+        if (lead.getCommissionShare() == null || estate.getCommissionShare() == null) {
+            return AttributeResult.empty();
+        }
+
+        double diff = Math.abs(lead.getCommissionShare() - estate.getCommissionShare());
+        double factor;
+
+        if (diff <= 10) {
+            factor = 1.0;
+        } else if (diff >= 30) {
+            factor = 0.0;
+        } else {
+            factor = 1.0 - ((diff - 10) / 20.0);
+        }
+
+        double score = W_COMMISSION * factor;
+        return new AttributeResult(W_COMMISSION, score, "commissionShare");
+    }
+
+    private AttributeResult calcEmbeddingScore(Lead lead, Estate estate) {
+        try {
+            Double similarity = embeddingService.compareObjectsDescription(lead, estate);
+            if (similarity == null) {
+                return AttributeResult.empty();
+            }
+
+            double score = W_VECTOR_SIMILARITY * similarity;
+            return new AttributeResult(W_VECTOR_SIMILARITY, score, "embedding(description)");
+        } catch (Exception ex) {
+            System.err.println("Embedding compare failed: " + ex.getMessage());
+            return AttributeResult.empty();
+        }
+    }
+
+    private record AttributeResult(double weight, double score, String attributeName) {
+        static AttributeResult empty() {
+            return new AttributeResult(0.0, 0.0, null);
+        }
     }
 }
