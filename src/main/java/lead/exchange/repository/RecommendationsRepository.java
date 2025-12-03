@@ -10,11 +10,11 @@ public interface RecommendationsRepository extends ListCrudRepository<Recommenda
     @Query("""
         SELECT r.*
         FROM recommendations r
-        JOIN matches m
+        LEFT JOIN matches m
             ON m.lead_id = r.source_id
            AND m.estate_id = r.target_id
         WHERE r.source_id = :id
-          AND m.lead_status = '0'
+          AND (m.lead_status = '0' OR m.lead_id IS NULL)
         ORDER BY r.similarity_score DESC
         LIMIT :limit
     """)
@@ -23,11 +23,11 @@ public interface RecommendationsRepository extends ListCrudRepository<Recommenda
     @Query("""
         SELECT r.*
         FROM recommendations r
-        JOIN matches m
+        LEFT JOIN matches m
             ON m.lead_id = r.source_id
            AND m.estate_id = r.target_id
         WHERE r.target_id = :id
-          AND m.estate_status = '0'
+          AND (m.estate_status = '0' OR m.estate_id is NULL)
         ORDER BY r.similarity_score DESC
         LIMIT :limit
     """)
