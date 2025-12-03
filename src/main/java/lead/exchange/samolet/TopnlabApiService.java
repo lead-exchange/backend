@@ -3,9 +3,11 @@ package lead.exchange.samolet;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Clock;
 import java.time.LocalDateTime;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lead.exchange.entity.Estate;
 import lead.exchange.mapper.EstateMapper;
 import lead.exchange.model.EstateStatus;
@@ -34,53 +36,86 @@ public class TopnlabApiService {
 
     public void updateEstates(UUID userId, String phone) {
         if (phone == null) {
-            log.info("Skipping update");
+            log.info("Skipping update: phone is null for user {}", userId);
+            return;
         }
+
         List<Long> ids = analyticsplusApi.getRealtyIdsByPhone(phone).ids();
+        if (ids == null || ids.isEmpty()) {
+            log.info("No external ids returned for phone {} (user {})", phone, userId);
+            return;
+        }
 
-        for (Long id : ids) {
+        LocalDateTime now = LocalDateTime.now(clock);
+
+        int batchSize = 10;
+        List<List<Long>> batches = new ArrayList<>();
+
+        for (int i = 0; i < ids.size(); i += batchSize) {
+            batches.add(ids.subList(i, Math.min(i + batchSize, ids.size())));
+        }
+
+        log.info("Processing {} ids in {} batches (batch size={})", ids.size(), batches.size(), batchSize);
+
+        for (List<Long> batch : batches) {
+            String idsStr = batch.stream()
+                    .map(String::valueOf)
+                    .collect(Collectors.joining(","));
+
             try {
-                LocalDateTime now = LocalDateTime.now(clock);
-                log.info("Get estate with id " + id);
-                RealtyEstateApiModel realty = topnlabApi.getRealtyEstateIds(id, token, "realty", 1)
-                    .values()
-                    .stream()
-                    .toList()
-                    .getFirst();
+                log.info("Batch request for ids: {}", idsStr);
 
-                Estate toSave = estateRepository.findEstatesByExternalId(realty.getId()).map(created -> {
-                    created.setCommissionShare(DEFAULT_COMMISSION_SHARE);
-                    created.setTotalCommissionRate(realty.getCommissionOwnerPaysToMeValue() != null
-                        ? Double.valueOf(realty.getCommissionOwnerPaysToMeValue())
-                        : null);
-                    created.setAttributes(estateMapper.toEntity(realty));
-                    created.setUpdatedAt(now);
-                    return created;
+                Map<Object, RealtyEstateApiModel> response = topnlabApi.getRealtyEstateIds(idsStr, token, "realty", 1);
 
-                }).orElseGet(() ->
-                    Estate.builder()
-                        .userId(userId)
-                        .totalCommissionRate(realty.getCommissionOwnerPaysToMeValue() != null
-                            ? Double.valueOf(realty.getCommissionOwnerPaysToMeValue())
-                            : null)
-                        .commissionShare(DEFAULT_COMMISSION_SHARE)
-                        .attributes(estateMapper.toEntity(realty))
-                        .externalId(realty.getId())
-                        .status(EstateStatus.ACTIVE)
-                        .createdAt(now)
-                        .updatedAt(now)
-                        .build());
+                if (response == null || response.isEmpty()) {
+                    log.info("Topnlab returned empty response for batch {}", idsStr);
+                    continue;
+                }
 
-                estateRepository.save(toSave);
+                for (RealtyEstateApiModel realty : response.values()) {
+                    try {
+                        Estate toSave = estateRepository.findEstatesByExternalId(realty.getId())
+                                .map(existing -> {
+                                    existing.setCommissionShare(DEFAULT_COMMISSION_SHARE);
+                                    existing.setTotalCommissionRate(
+                                            realty.getCommissionOwnerPaysToMeValue() != null
+                                                    ? Double.valueOf(realty.getCommissionOwnerPaysToMeValue())
+                                                    : null
+                                    );
+                                    existing.setAttributes(estateMapper.toEntity(realty));
+                                    existing.setUpdatedAt(now);
+                                    return existing;
+                                })
+                                .orElseGet(() ->
+                                    Estate.builder()
+                                        .userId(userId)
+                                        .totalCommissionRate(
+                                            realty.getCommissionOwnerPaysToMeValue() != null
+                                                ? Double.valueOf(realty.getCommissionOwnerPaysToMeValue())
+                                                : null
+                                        )
+                                        .commissionShare(DEFAULT_COMMISSION_SHARE)
+                                        .attributes(estateMapper.toEntity(realty))
+                                        .externalId(realty.getId())
+                                        .status(EstateStatus.ACTIVE)
+                                        .createdAt(now)
+                                        .updatedAt(now)
+                                        .build()
+                                );
 
-                log.info("Estate with id " + id + " updated");
+                        estateRepository.save(toSave);
+                        log.info("Estate with external id {} processed", realty.getId());
+                    } catch (Exception e) {
+                        log.error("Failed to import realty id={} for user {} : {}",
+                                realty != null ? realty.getId() : "null", userId, e.getMessage(), e);
+                    }
+                }
 
             } catch (Exception e) {
-                log.error("Failed to import id={} {}", id, e.getMessage());
-                log.error(Arrays.toString(e.getStackTrace()));
+                log.error("Failed batch for ids={} for user {} : {}", idsStr, userId, e.getMessage(), e);
             }
-
         }
+
         log.info("Update is finished for user {}", userId);
 
     }

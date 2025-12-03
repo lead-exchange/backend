@@ -21,7 +21,7 @@ public interface TopnlabApi {
     @RequestMapping(method = RequestMethod.GET, value = "/public/get-entities")
     @RateLimiter(name = "topnlabApieRateLimiter")
     Map<Object, RealtyEstateApiModel> getRealtyEstateIds(
-        @RequestParam("id") Long id,
+        @RequestParam("id") String ids,
         @RequestParam("key") String key,
         @RequestParam("type") String type,
         @RequestParam("short") Integer shortParam

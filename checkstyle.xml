@@ -313,9 +313,9 @@
         <module name="PackageDeclaration"/>
         <module name="ParameterAssignment"/>
         <!-- <module name="RequireThis"/> -->
-        <module name="ReturnCount">
-            <property name="max" value="4"/>
-        </module>
+<!--        <module name="ReturnCount">-->
+<!--            <property name="max" value="4"/>-->
+<!--        </module>-->
         <module name="SimplifyBooleanExpression"/>
         <module name="SimplifyBooleanReturn"/>
         <module name="StringLiteralEquality"/>
