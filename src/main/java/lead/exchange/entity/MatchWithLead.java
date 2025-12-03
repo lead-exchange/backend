@@ -6,7 +6,6 @@ import lead.exchange.model.MatchStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.relational.core.mapping.Column;
 
 @Data
 @NoArgsConstructor
