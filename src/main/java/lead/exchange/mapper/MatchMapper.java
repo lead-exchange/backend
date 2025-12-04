@@ -1,7 +1,10 @@
 package lead.exchange.mapper;
 
+import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
+
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.List;
 import lead.exchange.dto.CreateMatchDto;
 import lead.exchange.dto.ResponseMatchWithEstateDto;
 import lead.exchange.dto.ResponseMatchWithLeadDto;
@@ -16,7 +19,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
 
 @Component
 @RequiredArgsConstructor
@@ -58,6 +60,13 @@ public abstract class MatchMapper {
 
     public abstract ResponseMatchWithLeadDto toDto(MatchWithLead match);
 
-    @Mapping(target = "estatePhoto", expression = "java(match.getEstatePhotos().getFirst())")
+    @Mapping(target = "estatePhoto", expression = "java(getPhotos(match.getEstatePhotos()))")
     public abstract ResponseMatchWithEstateDto toDto(MatchWithEstate match);
+
+    protected String getPhotos(List<String> photos) {
+        if (photos == null || photos.isEmpty()) {
+            return null;
+        }
+        return photos.getFirst();
+    }
 }
