@@ -11,6 +11,7 @@ import lead.exchange.exception.ForbiddenException;
 import lead.exchange.security.dto.Parsed;
 import lead.exchange.service.AuthService;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.web.cors.CorsUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 
@@ -41,6 +42,11 @@ public class TelegramAuthFilter extends OncePerRequestFilter {
         if (!enabled) {
             return true;
         }
+
+        if (CorsUtils.isPreFlightRequest(request)) {
+            return true;
+        }
+
         String path = request.getRequestURI();
         return pathMatcher.matchesAny(path);
     }

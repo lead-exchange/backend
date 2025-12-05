@@ -1,7 +1,5 @@
 package lead.exchange.mapper;
 
-import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
-
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -20,6 +18,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
 
 @Component
 @RequiredArgsConstructor
