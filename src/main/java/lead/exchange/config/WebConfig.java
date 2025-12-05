@@ -18,10 +18,11 @@ public class WebConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**") // разрешаем все пути
-                        .allowedOrigins(
-                                "http://localhost:5173",
-                                "https://lead-exchange.github.io"
-                        )
+//                        .allowedOrigins(
+//                                "http://localhost:5173",
+//                                "https://lead-exchange.github.io"
+//                        )
+                        .allowedOriginPatterns("*") // TODO: fix before mvp release
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowCredentials(true);
             }
