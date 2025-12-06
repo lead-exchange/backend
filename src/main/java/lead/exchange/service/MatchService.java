@@ -215,7 +215,7 @@ public class MatchService {
     }
 
     private boolean isSuccess(MatchStatus leadStatus, MatchStatus estateStatus) {
-        if (leadStatus.equals(MatchStatus.LIKED) && estateStatus.equals(MatchStatus.DISLIKED)) {
+        if (leadStatus.equals(MatchStatus.LIKED) && estateStatus.equals(MatchStatus.LIKED)) {
             return true;
         }
         if (leadStatus.equals(MatchStatus.COMMISSION) && estateStatus.equals(MatchStatus.ACCEPTED)) {
