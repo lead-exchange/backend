@@ -15,7 +15,6 @@ import lead.exchange.security.dto.Parsed;
 import lead.exchange.security.models.TelegramChat;
 import lead.exchange.security.models.TelegramUser;
 
-
 public class TelegramInitDataValidator {
 
     private static final String AUTH_SCHEME = "tma";
@@ -55,7 +54,6 @@ public class TelegramInitDataValidator {
 
         Map<String, String> sorted = new TreeMap<>(params);
         sorted.remove(hashStr);
-        sorted.remove("signature");
 
         List<String> pairs = sorted.entrySet()
                 .stream()
