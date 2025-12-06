@@ -1,5 +1,6 @@
 package lead.exchange.service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -15,6 +16,10 @@ import lead.exchange.model.ScoreCalculationResult;
 import lead.exchange.repository.EstateRepository;
 import lead.exchange.repository.LeadRepository;
 import lead.exchange.repository.RecommendationsRepository;
+import lead.exchange.request.PagingBody;
+import lead.exchange.response.EstateRecommendationResponse;
+import lead.exchange.response.LeadRecommendationResponse;
+import lead.exchange.response.RecommendationResponseWithPaging;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -41,10 +46,19 @@ public class RecommendationService {
     private final EmbeddingService embeddingService;
 
 
-    public List<Estate> getRecosByLeadId(UUID leadId) {
-        List<Recommendation> recommendations = recommendationRepository.getListForLead(leadId, HARD_LIMIT);
+    public LeadRecommendationResponse getRecosByLeadId(UUID leadId, PagingBody pagingBody) {
+        List<Recommendation> recommendations;
+        if (pagingBody.lastScore == null || pagingBody.lastId == null) {
+            recommendations = recommendationRepository.getListForLead(leadId, pagingBody.count);
+        } else {
+            recommendations = recommendationRepository.getListForLeadWithPaging(leadId, pagingBody.count, pagingBody.lastScore, pagingBody.lastId);
+        }
+        LeadRecommendationResponse response = new LeadRecommendationResponse();
+        fillPagingResponse(recommendations, response);
+
         if (CollectionUtils.isEmpty(recommendations)) {
-            throw new ResourceNotFoundException("Not found with recommendations for lead: " + leadId);
+            response.items = Collections.emptyList();
+            return response;
         }
         List<UUID> estateIds = recommendations.stream().map(Recommendation::getTargetId).toList();
         List<Estate> estates = estateRepository.findAllById(estateIds);
@@ -52,16 +66,26 @@ public class RecommendationService {
         Map<UUID, Estate> estateMap = estates.stream()
                 .collect(Collectors.toMap(Estate::getId, e -> e));
 
-        return estateIds.stream()
+        response.items = estateIds.stream()
                 .map(estateMap::get)
                 .filter(Objects::nonNull)
                 .toList();
+        return response;
     }
 
-    public List<Lead> getRecosByEstateId(UUID estateId) {
-        List<Recommendation> recommendations = recommendationRepository.getListForEstate(estateId, HARD_LIMIT);
+    public EstateRecommendationResponse getRecosByEstateId(UUID estateId, PagingBody pagingBody) {
+        List<Recommendation> recommendations;
+        if (pagingBody.lastScore == null || pagingBody.lastId == null) {
+            recommendations = recommendationRepository.getListForEstate(estateId, pagingBody.count);
+        } else {
+            recommendations = recommendationRepository.getListForEstateWithPaging(estateId, pagingBody.count, pagingBody.lastScore, pagingBody.lastId);
+        }
+        EstateRecommendationResponse estateRecommendationResponse = new EstateRecommendationResponse();
+        fillPagingResponse(recommendations, estateRecommendationResponse);
+
         if (CollectionUtils.isEmpty(recommendations)) {
-            throw new ResourceNotFoundException("Not found with recommendations for estate: " + estateId);
+            estateRecommendationResponse.items = Collections.emptyList();
+            return estateRecommendationResponse;
         }
 
         List<UUID> leadIds = recommendations.stream()
@@ -74,10 +98,11 @@ public class RecommendationService {
         Map<UUID, Lead> leadMap = leads.stream()
                 .collect(Collectors.toMap(Lead::getId, l -> l));
 
-        return leadIds.stream()
+        estateRecommendationResponse.items = leadIds.stream()
                 .map(leadMap::get)
                 .filter(Objects::nonNull)
                 .toList();
+        return estateRecommendationResponse;
     }
 
     public void initiateRecommendations() {
@@ -131,6 +156,14 @@ public class RecommendationService {
         }
     }
 
+    private void fillPagingResponse(List<Recommendation> recommendations, RecommendationResponseWithPaging responseWithPaging) {
+        if (CollectionUtils.isEmpty(recommendations)) {
+            return;
+        }
+        Recommendation lastOne = recommendations.get(recommendations.size() - 1);
+        responseWithPaging.lastId = lastOne.getId();
+        responseWithPaging.lastScore = lastOne.getScore();
+    }
     private Recommendation createRecommendationEntity(Lead lead, Estate estate) {
         Recommendation rec = new Recommendation();
         rec.setSourceId(lead.getId());
