@@ -7,6 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import lead.exchange.entity.Estate;
 import lead.exchange.mapper.EstateMapper;
@@ -23,6 +26,7 @@ import org.springframework.stereotype.Service;
 public class TopnlabApiService {
 
     public static final double DEFAULT_COMMISSION_SHARE = 70D;
+    private static final int DEFAULT_THREAD_POOL_SIZE = 4;
 
     private final TopnlabApi topnlabApi;
     private final AnalyticsplusApi analyticsplusApi;
@@ -30,6 +34,7 @@ public class TopnlabApiService {
     private final EstateMapper estateMapper;
     private final ObjectMapper objectMapper;
     private final Clock clock;
+    private final ExecutorService executorService = Executors.newFixedThreadPool(DEFAULT_THREAD_POOL_SIZE);
 
     @Value("${external.api.token}")
     private String token;
@@ -117,6 +122,17 @@ public class TopnlabApiService {
         }
 
         log.info("Update is finished for user {}", userId);
+
+    }
+
+    public void updateEstatesConcurently(UUID userId, String phone) {
+        Future<?> future = executorService.submit(() -> {
+            try {
+                updateEstates(userId, phone);
+            } catch (Exception e) {
+                log.error("Error processing update estates for user {}: {}", userId, e.getMessage(), e);
+            }
+        });
 
     }
 

@@ -13,6 +13,7 @@ import lead.exchange.entity.Lead;
 import lead.exchange.entity.Match;
 import lead.exchange.entity.MatchLog;
 import lead.exchange.entity.MatchUpdateEntity;
+import lead.exchange.entity.User;
 import lead.exchange.exception.ForbiddenException;
 import lead.exchange.exception.ResourceAlreadyExistsException;
 import lead.exchange.exception.ResourceNotFoundException;
@@ -37,6 +38,8 @@ public class MatchService {
     private final LeadRepository leadRepository;
     private final EstateRepository estateRepository;
     private final MatchMapper mapper;
+    private final UserService userService;
+    private final TelegramNotificationService telegramNotificationService;
 
     public List<ResponseMatchWithEstateDto> getMatchesByLeadId(UUID leadId) {
         log.debug("Fetching matches by lead id: {}", leadId);
@@ -120,7 +123,27 @@ public class MatchService {
         matchLogService.createMatchLog(buildMatchLog(savedMatch, dto.status(), userType));
 
         if (isSuccess(savedMatch.getLeadStatus(), savedMatch.getEstateStatus())) {
-            log.info("Share contacts");
+
+            Lead lead = leadRepository.findById(savedMatch.getLeadId()).orElseThrow();
+            Estate estate = estateRepository.findById(savedMatch.getEstateId()).orElseThrow();
+            User userLead = userService.getUserById(lead.getUserId());
+            User userEstate = userService.getUserById(estate.getUserId());
+
+            telegramNotificationService.sendNotification(
+                """
+                    Поздравляем! У вас случился мэтч для лида %s с объектом %s.
+                    Высылаем вам контакты риелтора %s
+                    """.formatted(lead.getName(), estate.getAttributes().getTitle(), userEstate.getTelegramId())
+                , Long.parseLong(userLead.getTelegramId())
+            );
+
+            telegramNotificationService.sendNotification(
+                """
+                    Поздравляем! У вас случился мэтч для объекта %s с лидом %s.
+                    Высылаем вам контакты риелтора %s
+                    """.formatted(estate.getAttributes().getTitle(), lead.getName(), userLead.getTelegramId())
+                , Long.parseLong(userEstate.getTelegramId())
+            );
         }
 
         return savedMatch;

@@ -53,6 +53,8 @@ public class UserService {
 
         user.setPhone(newPhone);
 
+        topnlabApiService.updateEstatesConcurently(userId, newPhone);
+
         return saveUser(user);
     }
 
