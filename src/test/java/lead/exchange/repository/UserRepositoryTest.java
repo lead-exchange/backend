@@ -21,9 +21,9 @@ class UserRepositoryTest extends IntegrationTest {
     @Rollback
     @Transactional
     void saveAndFindUser() {
-        User user = testData.createTestUserWithTelegramId("test_telegram_123");
+        User user = testData.createTestUserWithTelegramId(123l);
 
-        Optional<User> foundUser = userRepository.findByTelegramId("test_telegram_123");
+        Optional<User> foundUser = userRepository.findByTelegramId(123l);
 
         assertTrue(foundUser.isPresent());
 

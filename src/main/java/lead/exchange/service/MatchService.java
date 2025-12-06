@@ -134,7 +134,7 @@ public class MatchService {
                     Поздравляем! У вас случился мэтч для лида %s с объектом %s.
                     Высылаем вам контакты риелтора %s
                     """.formatted(lead.getName(), estate.getAttributes().getTitle(), userEstate.getTelegramId()),
-                Long.parseLong(userLead.getTelegramId())
+                userLead.getTelegramId()
             );
 
             telegramNotificationService.sendNotification(
@@ -142,7 +142,7 @@ public class MatchService {
                     Поздравляем! У вас случился мэтч для объекта %s с лидом %s.
                     Высылаем вам контакты риелтора %s
                     """.formatted(estate.getAttributes().getTitle(), lead.getName(), userLead.getTelegramId()),
-                Long.parseLong(userEstate.getTelegramId())
+                userEstate.getTelegramId()
             );
         }
 

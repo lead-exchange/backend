@@ -1,5 +1,6 @@
 package lead.exchange.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
 import java.util.List;
 import lead.exchange.security.TelegramAuthFilter;
@@ -24,8 +25,14 @@ public class SecurityConfig {
     @Value("${tma.auth.public-paths:/swagger-ui,/v3/api-docs}")
     private String publicPathsProp;
 
+    @Value("${enable.local.dev}")
+    private Boolean isEnabledLocalDev;
+
     @Bean
-    public FilterRegistrationBean<TelegramAuthFilter> telegramAuthFilter(AuthService authService) {
+    public FilterRegistrationBean<TelegramAuthFilter> telegramAuthFilter(
+        AuthService authService,
+        ObjectMapper objectMapper
+    ) {
         List<String> publicPaths = Arrays.stream(publicPathsProp.split(","))
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
@@ -36,7 +43,9 @@ public class SecurityConfig {
                 botToken,
                 maxAgeSeconds,
                 publicPaths,
-                authService
+            authService,
+            objectMapper,
+            isEnabledLocalDev
         );
 
         FilterRegistrationBean<TelegramAuthFilter> bean = new FilterRegistrationBean<>();

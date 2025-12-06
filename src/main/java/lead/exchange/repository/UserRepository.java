@@ -10,7 +10,7 @@ import org.springframework.data.repository.ListCrudRepository;
 public interface UserRepository extends ListCrudRepository<User, UUID> {
 
     @Query("SELECT * FROM users WHERE telegram_id = :telegramId")
-    Optional<User> findByTelegramId(String telegramId);
+    Optional<User> findByTelegramId(Long telegramId);
 
     @Query("SELECT * FROM users WHERE id = :userId")
     Optional<User> findByUserId(UUID userId);

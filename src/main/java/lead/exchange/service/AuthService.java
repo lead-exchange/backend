@@ -24,15 +24,13 @@ public class AuthService {
             throw new IllegalArgumentException("Telegram user is missing");
         }
 
-        String telegramIdStr = String.valueOf(tgUser.id);
-
-        Optional<User> userOpt = userService.getOptionalUserByTelegramId(telegramIdStr);
+        Optional<User> userOpt = userService.getOptionalUserByTelegramId(tgUser.id);
 
         LocalDateTime now = LocalDateTime.now(clock);
 
         User user = userOpt.orElseGet(() -> {
             User u = new User();
-            u.setTelegramId(telegramIdStr);
+            u.setTelegramId(tgUser.id);
             u.setChatId(tgChat != null ? tgChat.id : null);
             u.setCreatedAt(now);
             u.setUpdatedAt(now);

@@ -16,14 +16,14 @@ public class UserService {
     private final UserRepository userRepository;
     private final TopnlabApiService topnlabApiService;
 
-    public User getUserByTelegramId(String telegramId) {
+    public User getUserByTelegramId(Long telegramId) {
         return userRepository.findByTelegramId(telegramId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "User not found with telegramId: " + telegramId
                 ));
     }
 
-    public Optional<User> getOptionalUserByTelegramId(String telegramId) {
+    public Optional<User> getOptionalUserByTelegramId(Long telegramId) {
         return userRepository.findByTelegramId(telegramId);
     }
 

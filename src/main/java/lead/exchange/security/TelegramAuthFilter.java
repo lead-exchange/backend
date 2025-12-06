@@ -1,5 +1,6 @@
 package lead.exchange.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,6 +10,7 @@ import java.time.Instant;
 import java.util.List;
 import lead.exchange.exception.ForbiddenException;
 import lead.exchange.security.dto.Parsed;
+import lead.exchange.security.dto.ParsedLocal;
 import lead.exchange.service.AuthService;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.web.cors.CorsUtils;
@@ -17,24 +19,29 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 public class TelegramAuthFilter extends OncePerRequestFilter {
 
+    public static final String CURRENT_USER = "currentUser";
     private final boolean enabled;
     private final String botToken;
     private final long maxAgeSeconds;
     private final PathMatcher pathMatcher;
     private final AuthService authService;
+    private final ObjectMapper objectMapper;
+    private final Boolean isEnabled;
 
     public TelegramAuthFilter(
             boolean enabled,
             String botToken,
             long maxAgeSeconds,
             List<String> publicPaths,
-            AuthService authService
+        AuthService authService, ObjectMapper objectMapper, Boolean isEnabled
     ) {
         this.enabled = enabled;
         this.botToken = botToken;
         this.maxAgeSeconds = maxAgeSeconds;
         this.pathMatcher = new PathMatcher(publicPaths);
         this.authService = authService;
+        this.objectMapper = objectMapper;
+        this.isEnabled = isEnabled;
     }
 
     @Override
@@ -57,6 +64,15 @@ public class TelegramAuthFilter extends OncePerRequestFilter {
             @NotNull HttpServletResponse response,
             @NotNull FilterChain filterChain
     ) throws ServletException, IOException {
+        String localHeader = request.getHeader("X-Api-Token");
+        if (isEnabled && localHeader != null && !localHeader.isEmpty()) {
+            ParsedLocal parsedLocal = objectMapper.readValue(localHeader, ParsedLocal.class);
+            var currentUser = authService.ensureAndLoadCurrentUser(parsedLocal.user(), parsedLocal.chat());
+            request.setAttribute(CURRENT_USER, currentUser);
+
+            filterChain.doFilter(request, response);
+            return;
+        }
         String auth = request.getHeader("Authorization");
         if (!TelegramInitDataValidator.hasTmaScheme(auth)) {
             throw new ForbiddenException("Missing or invalid Authorization: expected 'tma {initDataRaw}'");
@@ -81,13 +97,15 @@ public class TelegramAuthFilter extends OncePerRequestFilter {
             }
 
             var currentUser = authService.ensureAndLoadCurrentUser(parsed.user(), parsed.chat());
-            request.setAttribute("currentUser", currentUser);
+            request.setAttribute(CURRENT_USER, currentUser);
 
             filterChain.doFilter(request, response);
+
         } catch (ForbiddenException e) {
             throw e;
         } catch (Exception e) {
             throw new ForbiddenException("Authorization failed: " + e.getMessage());
         }
+
     }
 }

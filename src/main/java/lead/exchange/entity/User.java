@@ -21,7 +21,7 @@ public class User {
     @Column("id")
     private UUID id;
     @Column("telegram_id")
-    private String telegramId;
+    private Long telegramId;
     @Column("chat_id")
     private Long chatId;
     @Column("created_at")

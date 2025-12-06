@@ -42,7 +42,7 @@ public class TestDataHelper {
         LocalDateTime now = LocalDateTime.now(clock);
         return userRepository.save(
                 User.builder()
-                        .telegramId("test_user_" + UUID.randomUUID())
+                        .telegramId(1l)
                         .createdAt(now)
                         .chatId(1l)
                         .phone("78787897878")
@@ -51,7 +51,7 @@ public class TestDataHelper {
         );
     }
 
-    public User createTestUserWithTelegramId(String telegramId) {
+    public User createTestUserWithTelegramId(Long telegramId) {
         LocalDateTime now = LocalDateTime.now(clock);
         return userRepository.save(
                 User.builder()

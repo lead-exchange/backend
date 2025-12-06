@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CurrentUser {
     private UUID id;
-    private String telegramId;
+    private Long telegramId;
     private String username;
 }
