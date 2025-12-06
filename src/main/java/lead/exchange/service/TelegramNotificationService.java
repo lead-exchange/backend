@@ -26,7 +26,7 @@ public class TelegramNotificationService {
         this.telegramBot = telegramBot;
         this.userService = userService;
         MyUpdateListener myUpdateListener = new MyUpdateListener();
-        telegramBot.setUpdatesListener(myUpdateListener);
+//        telegramBot.setUpdatesListener(myUpdateListener);
     }
 
     public void sendNotification(String message, long chatId) {

@@ -1,12 +1,15 @@
 package lead.exchange.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import lead.exchange.dto.CreateMatchDto;
 import lead.exchange.dto.ResponseMatchWithEstateDto;
 import lead.exchange.dto.ResponseMatchWithLeadDto;
 import lead.exchange.dto.UpdateMatchDto;
 import lead.exchange.dto.UserType;
+import lead.exchange.entity.Estate;
+import lead.exchange.entity.Lead;
 import lead.exchange.entity.Match;
 import lead.exchange.entity.MatchLog;
 import lead.exchange.entity.MatchUpdateEntity;
@@ -59,6 +62,13 @@ public class MatchService {
                 throw new ResourceAlreadyExistsException("The match with this lead id and estate id already exists");
             }
         );
+
+        Optional<Lead> lead = leadRepository.findById(dto.leadId());
+        Optional<Estate> estate = estateRepository.findById(dto.estateId());
+
+        if (lead.isPresent() && estate.isPresent() && lead.get().getUserId().equals(estate.get().getUserId())) {
+            throw new ForbiddenException("Unable to create match with itself");
+        }
 
         Match match = mapper.toEntity(dto);
 
