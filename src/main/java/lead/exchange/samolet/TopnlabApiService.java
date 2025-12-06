@@ -15,6 +15,7 @@ import lead.exchange.entity.Estate;
 import lead.exchange.mapper.EstateMapper;
 import lead.exchange.model.EstateStatus;
 import lead.exchange.repository.EstateRepository;
+import lead.exchange.service.RecommendationAsyncService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,6 +34,7 @@ public class TopnlabApiService {
     private final EstateRepository estateRepository;
     private final EstateMapper estateMapper;
     private final ObjectMapper objectMapper;
+    private final RecommendationAsyncService recommendationAsyncService;
     private final Clock clock;
     private final ExecutorService executorService = Executors.newFixedThreadPool(DEFAULT_THREAD_POOL_SIZE);
 
@@ -109,6 +111,7 @@ public class TopnlabApiService {
                                 );
 
                         estateRepository.save(toSave);
+                        recommendationAsyncService.recalcForEstate(toSave.getId());
                         log.info("Estate with external id {} processed", realty.getId());
                     } catch (Exception e) {
                         log.error("Failed to import realty id={} for user {} : {}",

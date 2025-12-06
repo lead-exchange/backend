@@ -142,6 +142,20 @@ public class RecommendationService {
         }
     }
 
+    public void recalculateRecommendationsForEstate(UUID estateId) {
+        recommendationRepository.deleteAllByEstate(estateId);
+        initiateRecommendationsForEstate(estateId);
+    }
+
+    public void recalculateRecommendationsForLead(UUID leadId) {
+        deleteRecommendationsForLead(leadId);
+        initiateRecommendationsForLead(leadId);
+    }
+
+    public void deleteRecommendationsForLead(UUID leadId) {
+        recommendationRepository.deleteAllByLead(leadId);
+    }
+
     public void initiateRecommendationsForEstate(UUID estateId) {
         Estate estate = estateRepository.findById(estateId).orElse(null);
         if (estate == null) {

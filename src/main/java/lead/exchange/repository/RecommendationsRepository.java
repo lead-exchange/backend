@@ -3,8 +3,10 @@ package lead.exchange.repository;
 import java.util.List;
 import java.util.UUID;
 import lead.exchange.entity.Recommendation;
+import org.springframework.data.jdbc.repository.query.Modifying;
 import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.ListCrudRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 public interface RecommendationsRepository extends ListCrudRepository<Recommendation, UUID> {
     @Query("""
@@ -67,4 +69,19 @@ public interface RecommendationsRepository extends ListCrudRepository<Recommenda
     """)
     List<Recommendation> getListForEstateWithPaging(UUID id, int limit, double lastScore, UUID lastUuid);
 
+    @Modifying
+    @Transactional
+    @Query("""
+    DELETE FROM recommendations
+    WHERE target_id = :targetId
+""")
+    void deleteAllByEstate(UUID targetId);
+
+    @Modifying
+    @Transactional
+    @Query("""
+    DELETE FROM recommendations
+    WHERE source_id = :source_id
+""")
+    void deleteAllByLead(UUID sourceId);
 }
