@@ -33,7 +33,9 @@ public class TelegramAuthFilter extends OncePerRequestFilter {
             String botToken,
             long maxAgeSeconds,
             List<String> publicPaths,
-        AuthService authService, ObjectMapper objectMapper, Boolean isEnabled
+            AuthService authService,
+            ObjectMapper objectMapper,
+            Boolean isEnabled
     ) {
         this.enabled = enabled;
         this.botToken = botToken;

@@ -43,9 +43,9 @@ public class SecurityConfig {
                 botToken,
                 maxAgeSeconds,
                 publicPaths,
-            authService,
-            objectMapper,
-            isEnabledLocalDev
+                authService,
+                objectMapper,
+                isEnabledLocalDev
         );
 
         FilterRegistrationBean<TelegramAuthFilter> bean = new FilterRegistrationBean<>();
