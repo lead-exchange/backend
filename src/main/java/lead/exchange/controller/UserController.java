@@ -1,6 +1,7 @@
 package lead.exchange.controller;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import java.util.UUID;
 import lead.exchange.entity.User;
 import lead.exchange.security.models.CurrentUser;
 import lead.exchange.service.UserService;
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import java.util.UUID;
 
 
 @RestController

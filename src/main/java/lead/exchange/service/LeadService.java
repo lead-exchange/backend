@@ -70,4 +70,11 @@ public class LeadService {
         lead.setUpdatedAt(LocalDateTime.now(clock));
         return leadRepository.save(lead);
     }
+
+    public Lead unarchiveLead(UUID leadId) {
+        Lead lead = findById(leadId);
+        lead.setStatus(LeadStatus.ACTIVE);
+        lead.setUpdatedAt(LocalDateTime.now(clock));
+        return leadRepository.save(lead);
+    }
 }

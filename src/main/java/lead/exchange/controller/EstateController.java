@@ -38,6 +38,11 @@ public class EstateController {
         return ResponseEntity.ok(estateService.archiveEstate(estateId));
     }
 
+    @PostMapping("/{estateId}/unarchive")
+    public ResponseEntity<Estate> unarchiveEstate(@PathVariable UUID estateId) {
+        return ResponseEntity.ok(estateService.unarchiveEstate(estateId));
+    }
+
     @PostMapping("/refresh")
     public ResponseEntity<Void> refresh(@Parameter(hidden = true) CurrentUser currentUser) {
         userService.fillUserEstates(currentUser.getId());
