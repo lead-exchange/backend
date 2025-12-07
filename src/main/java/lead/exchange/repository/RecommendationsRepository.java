@@ -4,10 +4,8 @@ import java.util.List;
 import java.util.UUID;
 import lead.exchange.entity.Recommendation;
 import org.springframework.data.jdbc.repository.query.Modifying;
-import org.springframework.data.jdbc.repository.query.Modifying;
 import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.ListCrudRepository;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.annotation.Transactional;
 
 public interface RecommendationsRepository extends ListCrudRepository<Recommendation, UUID> {

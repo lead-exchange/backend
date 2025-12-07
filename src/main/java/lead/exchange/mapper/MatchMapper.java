@@ -1,6 +1,5 @@
 package lead.exchange.mapper;
 
-
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
