@@ -16,4 +16,7 @@ public interface EstateRepository extends ListCrudRepository<Estate, UUID> {
 
     @Query("SELECT * FROM estates ")
     List<Estate> findAll();
+
+    @Query("SELECT * FROM estates WHERE user_id != :userId")
+    List<Estate> findEstatesFromOtherUsers(UUID userId);
 }

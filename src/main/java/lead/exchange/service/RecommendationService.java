@@ -65,7 +65,7 @@ public class RecommendationService {
         }
 
         List<UUID> leadIds = recommendations.stream()
-                .map(Recommendation::getTargetId)
+                .map(Recommendation::getSourceId)
                 .toList();
 
         List<Lead> leads = leadRepository.findAllById(leadIds);
@@ -87,6 +87,9 @@ public class RecommendationService {
 
         for (Lead lead : leads) {
             for (Estate estate : estates) {
+                if (estate.getUserId().equals(lead.getUserId())) {
+                    continue;
+                }
                 ScoreCalculationResult score = calculateSimilarityScore(lead, estate);
 
                 Recommendation rec = new Recommendation();
@@ -107,11 +110,25 @@ public class RecommendationService {
                                                         .formatted(leadId));
         }
 
-        List<Estate> estates = estateRepository.findAll();
+        List<Estate> estates = estateRepository.findEstatesFromOtherUsers(lead.getUserId());
 
         for (Estate estate : estates) {
             recommendationRepository.save(createRecommendationEntity(lead, estate));
         }
+    }
+
+    public void recalculateRecommendationsForEstate(UUID estateId) {
+        recommendationRepository.deleteAllByEstate(estateId);
+        initiateRecommendationsForEstate(estateId);
+    }
+
+    public void recalculateRecommendationsForLead(UUID leadId) {
+        deleteRecommendationsForLead(leadId);
+        initiateRecommendationsForLead(leadId);
+    }
+
+    public void deleteRecommendationsForLead(UUID leadId) {
+        recommendationRepository.deleteAllByLead(leadId);
     }
 
     public void initiateRecommendationsForEstate(UUID estateId) {
@@ -121,7 +138,7 @@ public class RecommendationService {
                                                         .formatted(estate));
         }
 
-        List<Lead> leads = leadRepository.findAll();
+        List<Lead> leads = leadRepository.findLeadsFromOtherUsers(estate.getUserId());
 
         for (Lead lead : leads) {
             recommendationRepository.save(createRecommendationEntity(lead, estate));

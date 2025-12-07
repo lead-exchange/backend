@@ -10,4 +10,7 @@ public interface LeadRepository extends ListCrudRepository<Lead, UUID> {
 
     @Query("SELECT * FROM leads WHERE user_id = :userId")
     List<Lead> findByUserId(UUID userId);
+
+    @Query("SELECT * FROM leads WHERE user_id != :userId")
+    List<Lead> findLeadsFromOtherUsers(UUID userId);
 }

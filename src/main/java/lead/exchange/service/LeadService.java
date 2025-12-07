@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 public class LeadService {
     private final LeadRepository leadRepository;
     private final UserService userService;
+    private final RecommendationAsyncService recommendationAsyncService;
     private final Clock clock;
     private final LeadMapper leadMapper;
 
@@ -45,7 +46,10 @@ public class LeadService {
         toSave.setCreatedAt(timestamp);
         toSave.setUpdatedAt(timestamp);
 
-        return leadRepository.save(toSave);
+        Lead created = leadRepository.save(toSave);
+
+        recommendationAsyncService.initiateRecommendationsForLead(created.getId());
+        return created;
     }
 
     public Lead updateLead(UUID leadId, LeadUpdateDto leadUpdate) {
@@ -54,14 +58,17 @@ public class LeadService {
         existingLead.setName(leadUpdate.name());
         existingLead.setRequirements(leadUpdate.requirements());
         existingLead.setCommissionShare(leadUpdate.commissionShare());
-        existingLead.setCommissionShare(leadUpdate.commissionShare());
         existingLead.setUpdatedAt(LocalDateTime.now(clock));
 
-        return leadRepository.save(existingLead);
+        Lead updated = leadRepository.save(existingLead);
+        recommendationAsyncService.recalcForLead(updated.getId());
+
+        return updated;
     }
 
     public void deleteLead(UUID leadId) {
         leadRepository.deleteById(leadId);
+        recommendationAsyncService.deleteRecommendationsByLead(leadId);
     }
 
     public Lead archiveLead(UUID leadId) {

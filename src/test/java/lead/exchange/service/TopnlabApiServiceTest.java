@@ -1,19 +1,40 @@
 package lead.exchange.service;
 
-import static org.mockito.Mockito.*;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.time.*;
-import java.util.*;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import lead.exchange.entity.Estate;
 import lead.exchange.mapper.EstateMapper;
 import lead.exchange.model.EstateAttributes;
 import lead.exchange.model.EstateStatus;
 import lead.exchange.repository.EstateRepository;
-import lead.exchange.samolet.*;
-import org.junit.jupiter.api.*;
-import org.mockito.*;
+import lead.exchange.samolet.AnalyticsplusApi;
+import lead.exchange.samolet.EstatesIdByRealtyApiModel;
+import lead.exchange.samolet.RealtyEstateApiModel;
+import lead.exchange.samolet.TopnlabApi;
+import lead.exchange.samolet.TopnlabApiService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 
 class TopnlabApiServiceTest {
@@ -29,6 +50,9 @@ class TopnlabApiServiceTest {
 
     @Mock
     private EstateMapper estateMapper;
+
+    @Mock
+    private RecommendationAsyncService recommendationService;
 
     @Captor
     private ArgumentCaptor<Estate> estateCaptor;
@@ -50,6 +74,7 @@ class TopnlabApiServiceTest {
                 estateRepository,
                 estateMapper,
                 objectMapper,
+                recommendationService,
                 fixedClock
         );
     }
