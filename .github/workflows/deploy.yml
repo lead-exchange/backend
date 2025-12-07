@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - feature/62
 
 jobs:
   deploy:

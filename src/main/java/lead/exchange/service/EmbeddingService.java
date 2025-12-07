@@ -22,7 +22,6 @@ import org.springframework.web.client.RestTemplate;
 @RequiredArgsConstructor
 public class EmbeddingService {
     private final RestTemplate restTemplate;
-    private final EstateService estateService;
     private static final String YANDEX_EMBEDDING_URL = "https://llm.api.cloud.yandex.net/foundationModels/v1/textEmbedding";
 
     public double compareObjectsDescription(Lead lead, Estate estate) {
