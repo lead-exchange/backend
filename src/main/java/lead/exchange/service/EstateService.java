@@ -16,8 +16,7 @@ import org.springframework.stereotype.Service;
 public class EstateService {
     private final EstateRepository estateRepository;
     private final UserService userService;
-
-    private Clock clock;
+    private final Clock clock;
 
     public List<Estate> getEstateByUserId(UUID userId) {
         userService.getUserById(userId);

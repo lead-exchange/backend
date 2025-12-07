@@ -1,10 +1,10 @@
 package lead.exchange.mapper;
 
-import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 import lead.exchange.dto.CreateMatchDto;
 import lead.exchange.dto.ResponseMatchWithEstateDto;
 import lead.exchange.dto.ResponseMatchWithLeadDto;
@@ -19,6 +19,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
 
 @Component
 @RequiredArgsConstructor
@@ -28,27 +29,27 @@ public abstract class MatchMapper {
     @Autowired
     private Clock clock;
 
-    public MatchUpdateEntity toEntity(UpdateMatchDto matchDto) {
+    public MatchUpdateEntity toEntity(UpdateMatchDto matchDto, UUID userId) {
         LocalDateTime now = LocalDateTime.now(clock);
         return new MatchUpdateEntity(
             matchDto.id(),
             matchDto.leadCommission(),
-            matchDto.updatedBy(),
+            userId,
             matchDto.comment(),
             matchDto.status(),
             now
         );
     }
 
-    public Match toEntity(CreateMatchDto matchDto) {
+    public Match toEntity(CreateMatchDto matchDto, UUID userId) {
         LocalDateTime now = LocalDateTime.now(clock);
 
         return Match.builder()
             .leadId(matchDto.leadId())
             .estateId(matchDto.estateId())
             .leadCommission(matchDto.leadCommission())
-            .updatedBy(matchDto.updatedBy())
             .comment(matchDto.comment())
+            .updatedBy(userId)
             .leadStatus(MatchStatus.UNDEFINED)
             .estateStatus(MatchStatus.UNDEFINED)
             .updatedAt(now)

@@ -11,8 +11,6 @@ public record CreateMatchDto(
     UUID estateId,
     @NotNull
     Double leadCommission,
-    @NotNull
-    UUID updatedBy,
     String comment,
     @NotNull
     MatchStatus status

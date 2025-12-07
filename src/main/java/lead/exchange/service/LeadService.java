@@ -4,8 +4,11 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import lead.exchange.dto.LeadCreateDto;
+import lead.exchange.dto.LeadUpdateDto;
 import lead.exchange.entity.Lead;
 import lead.exchange.exception.ResourceNotFoundException;
+import lead.exchange.mapper.LeadMapper;
 import lead.exchange.model.LeadStatus;
 import lead.exchange.repository.LeadRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +21,7 @@ public class LeadService {
     private final LeadRepository leadRepository;
     private final UserService userService;
     private final Clock clock;
+    private final LeadMapper leadMapper;
 
     public List<Lead> findByUserId(UUID userId) {
         userService.getUserById(userId);
@@ -30,24 +34,27 @@ public class LeadService {
         );
     }
 
-    public Lead createLead(Lead lead) {
-        userService.getUserById(lead.getUserId());
+    public Lead createLead(LeadCreateDto lead, UUID id) {
+        userService.getUserById(id);
+        Lead toSave = leadMapper.toEntity(lead);
 
-        lead.setStatus(LeadStatus.ACTIVE);
+        toSave.setStatus(LeadStatus.ACTIVE);
+        toSave.setUserId(id);
 
         LocalDateTime timestamp = LocalDateTime.now(clock);
-        lead.setCreatedAt(timestamp);
-        lead.setUpdatedAt(timestamp);
+        toSave.setCreatedAt(timestamp);
+        toSave.setUpdatedAt(timestamp);
 
-        return leadRepository.save(lead);
+        return leadRepository.save(toSave);
     }
 
-    public Lead updateLead(UUID leadId, Lead leadUpdate) {
+    public Lead updateLead(UUID leadId, LeadUpdateDto leadUpdate) {
         Lead existingLead = findById(leadId);
 
-        existingLead.setName(leadUpdate.getName());
-        existingLead.setRequirements(leadUpdate.getRequirements());
-        existingLead.setCommissionShare(leadUpdate.getCommissionShare());
+        existingLead.setName(leadUpdate.name());
+        existingLead.setRequirements(leadUpdate.requirements());
+        existingLead.setCommissionShare(leadUpdate.commissionShare());
+        existingLead.setCommissionShare(leadUpdate.commissionShare());
         existingLead.setUpdatedAt(LocalDateTime.now(clock));
 
         return leadRepository.save(existingLead);

@@ -21,7 +21,7 @@ public class User {
     @Column("id")
     private UUID id;
     @Column("telegram_id")
-    private String telegramId;
+    private Long telegramId;
     @Column("chat_id")
     private Long chatId;
     @Column("created_at")
@@ -30,6 +30,10 @@ public class User {
     private LocalDateTime updatedAt;
     @Column("phone")
     private String phone;
+    @Column("offer1_signed")
+    private Boolean offer1Signed;
+    @Column("offer2_signed")
+    private Boolean offer2Signed;
 
     public static class UserBuilder {
 

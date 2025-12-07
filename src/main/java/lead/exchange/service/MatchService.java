@@ -13,6 +13,7 @@ import lead.exchange.entity.Lead;
 import lead.exchange.entity.Match;
 import lead.exchange.entity.MatchLog;
 import lead.exchange.entity.MatchUpdateEntity;
+import lead.exchange.entity.User;
 import lead.exchange.exception.ForbiddenException;
 import lead.exchange.exception.ResourceAlreadyExistsException;
 import lead.exchange.exception.ResourceNotFoundException;
@@ -37,6 +38,8 @@ public class MatchService {
     private final LeadRepository leadRepository;
     private final EstateRepository estateRepository;
     private final MatchMapper mapper;
+    private final UserService userService;
+    private final TelegramNotificationService telegramNotificationService;
 
     public List<ResponseMatchWithEstateDto> getMatchesByLeadId(UUID leadId) {
         log.debug("Fetching matches by lead id: {}", leadId);
@@ -55,7 +58,7 @@ public class MatchService {
     }
 
     @Transactional
-    public Match createMatch(CreateMatchDto dto) {
+    public Match createMatch(CreateMatchDto dto, UUID id) {
         log.info("Creating new match for lead: {} and estate: {}", dto.leadId(), dto.estateId());
         matchRepository.findByEstateIdAndLeadId(dto.estateId(), dto.leadId()).ifPresent(
             e -> {
@@ -70,9 +73,9 @@ public class MatchService {
             throw new ForbiddenException("Unable to create match with itself");
         }
 
-        Match match = mapper.toEntity(dto);
+        Match match = mapper.toEntity(dto, id);
 
-        UserType userType = getUserType(dto.leadId(), dto.estateId(), dto.updatedBy());
+        UserType userType = getUserType(dto.leadId(), dto.estateId(), id);
 
         switch (userType) {
             case LEAD -> {
@@ -94,12 +97,12 @@ public class MatchService {
     }
 
     @Transactional
-    public Match updateMatch(UpdateMatchDto dto) {
+    public Match updateMatch(UpdateMatchDto dto, UUID username) {
         Match createdMatch = matchRepository.findById(dto.id())
             .orElseThrow(() -> new ResourceNotFoundException(MATCH_WITH_THIS_ID_S_NOT_FOUND.formatted(dto.id())));
 
-        UserType userType = getUserType(createdMatch.getLeadId(), createdMatch.getEstateId(), dto.updatedBy());
-        MatchUpdateEntity toSave = mapper.toEntity(dto);
+        UserType userType = getUserType(createdMatch.getLeadId(), createdMatch.getEstateId(), username);
+        MatchUpdateEntity toSave = mapper.toEntity(dto, username);
 
         switch (userType) {
             case LEAD -> {
@@ -120,7 +123,27 @@ public class MatchService {
         matchLogService.createMatchLog(buildMatchLog(savedMatch, dto.status(), userType));
 
         if (isSuccess(savedMatch.getLeadStatus(), savedMatch.getEstateStatus())) {
-            log.info("Share contacts");
+
+            Lead lead = leadRepository.findById(savedMatch.getLeadId()).orElseThrow();
+            Estate estate = estateRepository.findById(savedMatch.getEstateId()).orElseThrow();
+            User userLead = userService.getUserById(lead.getUserId());
+            User userEstate = userService.getUserById(estate.getUserId());
+
+            telegramNotificationService.sendNotification(
+                """
+                    Поздравляем! У вас случился мэтч для лида %s с объектом %s.
+                    Высылаем вам контакты риелтора %s
+                    """.formatted(lead.getName(), estate.getAttributes().getTitle(), userEstate.getTelegramId()),
+                userLead.getTelegramId()
+            );
+
+            telegramNotificationService.sendNotification(
+                """
+                    Поздравляем! У вас случился мэтч для объекта %s с лидом %s.
+                    Высылаем вам контакты риелтора %s
+                    """.formatted(estate.getAttributes().getTitle(), lead.getName(), userLead.getTelegramId()),
+                userEstate.getTelegramId()
+            );
         }
 
         return savedMatch;
@@ -192,7 +215,7 @@ public class MatchService {
     }
 
     private boolean isSuccess(MatchStatus leadStatus, MatchStatus estateStatus) {
-        if (leadStatus.equals(MatchStatus.LIKED) && estateStatus.equals(MatchStatus.DISLIKED)) {
+        if (leadStatus.equals(MatchStatus.LIKED) && estateStatus.equals(MatchStatus.LIKED)) {
             return true;
         }
         if (leadStatus.equals(MatchStatus.COMMISSION) && estateStatus.equals(MatchStatus.ACCEPTED)) {

@@ -1,5 +1,6 @@
 package lead.exchange.controller;
 
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -8,6 +9,7 @@ import lead.exchange.dto.ResponseMatchWithEstateDto;
 import lead.exchange.dto.ResponseMatchWithLeadDto;
 import lead.exchange.dto.UpdateMatchDto;
 import lead.exchange.entity.Match;
+import lead.exchange.security.models.CurrentUser;
 import lead.exchange.service.MatchService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -27,14 +29,20 @@ public class MatchController {
     private final MatchService matchService;
 
     @PostMapping
-    public ResponseEntity<Match> createMatch(@RequestBody @Valid CreateMatchDto matchDto) {
-        Match createdMatch = matchService.createMatch(matchDto);
+    public ResponseEntity<Match> createMatch(
+        @RequestBody @Valid CreateMatchDto matchDto,
+        @Parameter(hidden = true) CurrentUser currentUser
+    ) {
+        Match createdMatch = matchService.createMatch(matchDto, currentUser.getId());
         return ResponseEntity.ok(createdMatch);
     }
 
     @PutMapping
-    public ResponseEntity<Match> updateMatch(@RequestBody UpdateMatchDto matchDto) {
-        Match createdMatch = matchService.updateMatch(matchDto);
+    public ResponseEntity<Match> updateMatch(
+        @RequestBody UpdateMatchDto matchDto,
+        @Parameter(hidden = true) CurrentUser currentUser
+    ) {
+        Match createdMatch = matchService.updateMatch(matchDto, currentUser.getId());
         return ResponseEntity.ok(createdMatch);
     }
 

@@ -1,8 +1,10 @@
 package lead.exchange.controller;
 
+import io.swagger.v3.oas.annotations.Parameter;
 import java.util.List;
 import java.util.UUID;
 import lead.exchange.entity.Estate;
+import lead.exchange.security.models.CurrentUser;
 import lead.exchange.service.EstateService;
 import lead.exchange.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +23,9 @@ public class EstateController {
     private final EstateService estateService;
     private final UserService userService;
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Estate>> getEstateByUserId(@PathVariable UUID userId) {
-        return ResponseEntity.ok(estateService.getEstateByUserId(userId));
+    @GetMapping
+    public ResponseEntity<List<Estate>> getEstateByUserId(@Parameter(hidden = true) CurrentUser currentUser) {
+        return ResponseEntity.ok(estateService.getEstateByUserId(currentUser.getId()));
     }
 
     @GetMapping("/{estateId}")
@@ -36,9 +38,9 @@ public class EstateController {
         return ResponseEntity.ok(estateService.archiveEstate(estateId));
     }
 
-    @PostMapping("/refresh/{userId}")
-    public ResponseEntity<Void> refresh(@PathVariable UUID userId) {
-        userService.fillUserEstates(userId);
+    @PostMapping("/refresh")
+    public ResponseEntity<Void> refresh(@Parameter(hidden = true) CurrentUser currentUser) {
+        userService.fillUserEstates(currentUser.getId());
         return ResponseEntity.ok().build();
     }
 
