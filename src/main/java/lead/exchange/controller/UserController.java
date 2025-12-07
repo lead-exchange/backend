@@ -6,11 +6,13 @@ import lead.exchange.security.models.CurrentUser;
 import lead.exchange.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import java.util.UUID;
 
 
 @RestController
@@ -44,4 +46,10 @@ public class UserController {
     public ResponseEntity<User> signOffer2(@Parameter(hidden = true) CurrentUser currentUser) {
         return ResponseEntity.ok(userService.signOffer2(currentUser.getId()));
     }
+
+    @DeleteMapping("/reset")
+    public ResponseEntity<User> resetUserData(@RequestParam UUID userId) {
+        return ResponseEntity.ok(userService.resetUserData(userId));
+    }
+
 }
