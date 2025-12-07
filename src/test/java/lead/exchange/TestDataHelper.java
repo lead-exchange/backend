@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 import lead.exchange.entity.Estate;
 import lead.exchange.entity.Lead;
 import lead.exchange.entity.Match;
@@ -40,9 +41,10 @@ public class TestDataHelper {
 
     public User createTestUser() {
         LocalDateTime now = LocalDateTime.now(clock);
+
         return userRepository.save(
                 User.builder()
-                        .telegramId(1l)
+                    .telegramId(ThreadLocalRandom.current().nextLong(100))
                         .createdAt(now)
                         .chatId(1l)
                         .phone("78787897878")
