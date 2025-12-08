@@ -20,6 +20,7 @@ public class MatchWithEstate {
     private UUID updatedBy;
     private String comment;
     private MatchStatus leadStatus;
+    private MatchStatus commonStatus;
     private MatchStatus estateStatus;
     private LocalDateTime matchedAt;
     private LocalDateTime createdAt;

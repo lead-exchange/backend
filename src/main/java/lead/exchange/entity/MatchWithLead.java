@@ -20,6 +20,7 @@ public class MatchWithLead {
     private String comment;
     private MatchStatus leadStatus;
     private MatchStatus estateStatus;
+    private MatchStatus commonStatus;
     private LocalDateTime matchedAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
