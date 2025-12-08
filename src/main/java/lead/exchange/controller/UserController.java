@@ -1,11 +1,13 @@
 package lead.exchange.controller;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import java.util.UUID;
 import lead.exchange.entity.User;
 import lead.exchange.security.models.CurrentUser;
 import lead.exchange.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -44,4 +46,10 @@ public class UserController {
     public ResponseEntity<User> signOffer2(@Parameter(hidden = true) CurrentUser currentUser) {
         return ResponseEntity.ok(userService.signOffer2(currentUser.getId()));
     }
+
+    @DeleteMapping("/reset")
+    public ResponseEntity<User> resetUserData(@RequestParam UUID userId) {
+        return ResponseEntity.ok(userService.resetUserData(userId));
+    }
+
 }

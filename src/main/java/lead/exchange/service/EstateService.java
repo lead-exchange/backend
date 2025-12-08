@@ -36,5 +36,12 @@ public class EstateService {
         return estateRepository.save(estate);
     }
 
+    public Estate unarchiveEstate(UUID estateId) {
+        Estate estate = findById(estateId);
+        estate.setStatus(EstateStatus.ACTIVE);
+        estate.setUpdatedAt(LocalDateTime.now(clock));
+        return estateRepository.save(estate);
+    }
+
 
 }

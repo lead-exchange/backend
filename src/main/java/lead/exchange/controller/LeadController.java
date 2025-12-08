@@ -60,4 +60,9 @@ public class LeadController {
     public ResponseEntity<Lead> archiveLead(@PathVariable UUID leadId) {
         return ResponseEntity.ok(leadService.archiveLead(leadId));
     }
+
+    @PostMapping("/{leadId}/unarchive")
+    public ResponseEntity<Lead> unarchiveLead(@PathVariable UUID leadId) {
+        return ResponseEntity.ok(leadService.unarchiveLead(leadId));
+    }
 }

@@ -20,7 +20,6 @@ import lead.exchange.repository.EstateRepository;
 import lead.exchange.repository.LeadRepository;
 import lead.exchange.repository.MatchRepository;
 import lead.exchange.repository.UserRepository;
-import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -137,6 +136,7 @@ public class TestDataHelper {
                         .estateId(estateId)
                         .estateStatus(MatchStatus.ACCEPTED)
                         .leadStatus(MatchStatus.ACCEPTED)
+                        .commonStatus(MatchCommonStatus.WAIT_ESTATE)
                         .leadCommission(1.0)
                         .updatedBy(testUserId)
                         .createdAt(now)

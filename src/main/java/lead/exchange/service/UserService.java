@@ -83,4 +83,15 @@ public class UserService {
     public User saveUser(User user) {
         return userRepository.save(user);
     }
+
+    public User resetUserData(UUID userId) {
+        User user = getUserById(userId);
+
+        user.setPhone(null);
+        user.setOffer1Signed(false);
+        user.setOffer2Signed(false);
+
+        return saveUser(user);
+    }
+
 }
