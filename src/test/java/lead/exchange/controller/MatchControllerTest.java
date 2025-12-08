@@ -9,10 +9,11 @@ import java.util.UUID;
 import java.util.stream.Stream;
 import lead.exchange.IntegrationTest;
 import lead.exchange.entity.Match;
+import lead.exchange.entity.User;
+import lead.exchange.model.MatchCommonStatus;
 import lead.exchange.model.MatchStatus;
 import lead.exchange.repository.MatchRepository;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -25,22 +26,21 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
-@Disabled
 public class MatchControllerTest extends IntegrationTest {
 
     private UUID testLeadId;
     private UUID testEstateId;
-    private UUID testUserLeadId;
-    private UUID testUserEstateId;
+    private User testUserLeadId;
+    private User testUserEstateId;
     @Autowired private MatchRepository matchRepository;
 
     @BeforeEach
     public void setup() {
         matchRepository.deleteAll();
-        testUserLeadId = testData.createTestUser().getId();
-        testUserEstateId = testData.createTestUser().getId();
-        testLeadId = testData.createTestLead(testUserLeadId).getId();
-        testEstateId = testData.createTestEstate(testUserEstateId).getId();
+        testUserLeadId = testData.createTestUser();
+        testUserEstateId = testData.createTestUser();
+        testLeadId = testData.createTestLead(testUserLeadId.getId()).getId();
+        testEstateId = testData.createTestEstate(testUserEstateId.getId()).getId();
     }
 
     @ParameterizedTest
@@ -52,16 +52,20 @@ public class MatchControllerTest extends IntegrationTest {
                         "leadId": "%s",
                         "estateId": "%s",
                         "leadCommission": 5.5,
-                        "updatedBy": "%s",
                         "comment": "Initial match comment",
                         "status": "%s"
                     }
-                """, testLeadId, testEstateId, testUserLeadId, status.toString()
+                """, testLeadId, testEstateId, status.toString()
         );
 
         RestAssuredMockMvc.given()
             .contentType(ContentType.JSON)
             .body(createMatchJson)
+            .header(
+                "X-Api-Token",
+                "{  \"user\" : {    \"id\" : %s,    \"username\" : \"bob\"  },  \"chat\" : {    \"id\" : 1 }}".formatted(
+                    testUserLeadId.getTelegramId())
+            )
             .when()
             .post("/api/matches")
             .then()
@@ -71,7 +75,11 @@ public class MatchControllerTest extends IntegrationTest {
             .body("leadCommission", equalTo(5.5f))
             .body("comment", equalTo("Initial match comment"))
             .body("leadStatus", equalTo(status.toString()))
-            .body("estateStatus", equalTo("UNDEFINED"));
+            .body("estateStatus", equalTo("UNDEFINED"))
+            .body(
+                "commonStatus",
+                status.equals(MatchStatus.DISLIKED) ? equalTo("FAILED") : equalTo("WAIT_ESTATE")
+            );
     }
 
     @ParameterizedTest
@@ -83,7 +91,6 @@ public class MatchControllerTest extends IntegrationTest {
                         "leadId": "%s",
                         "estateId": "%s",
                         "leadCommission": 5.5,
-                        "updatedBy": "%s",
                         "comment": "Initial match comment",
                         "status": "%s"
                     }
@@ -92,6 +99,11 @@ public class MatchControllerTest extends IntegrationTest {
 
         RestAssuredMockMvc.given()
             .contentType(ContentType.JSON)
+            .header(
+                "X-Api-Token",
+                "{  \"user\" : {    \"id\" : %s,    \"username\" : \"bob\"  },  \"chat\" : {    \"id\" : 1 }}".formatted(
+                    testUserLeadId.getTelegramId())
+            )
             .body(createMatchJson)
             .post("/api/matches")
             .then()
@@ -117,6 +129,11 @@ public class MatchControllerTest extends IntegrationTest {
         RestAssuredMockMvc.given()
             .contentType(ContentType.JSON)
             .body(createMatchJson)
+            .header(
+                "X-Api-Token",
+                "{  \"user\" : {    \"id\" : %s,    \"username\" : \"bob\"  },  \"chat\" : {    \"id\" : 1 }}".formatted(
+                    testUserEstateId.getTelegramId())
+            )
             .when()
             .post("/api/matches")
             .then()
@@ -126,7 +143,11 @@ public class MatchControllerTest extends IntegrationTest {
             .body("leadCommission", equalTo(5.5f))
             .body("comment", equalTo("Initial match comment"))
             .body("leadStatus", equalTo("UNDEFINED"))
-            .body("estateStatus", equalTo(status.toString()));
+            .body("estateStatus", equalTo(status.toString()))
+            .body(
+                "commonStatus",
+                status.equals(MatchStatus.DISLIKED) ? equalTo("FAILED") : equalTo("WAIT_LEAD")
+            );
     }
 
     @ParameterizedTest
@@ -148,6 +169,11 @@ public class MatchControllerTest extends IntegrationTest {
         RestAssuredMockMvc.given()
             .contentType(ContentType.JSON)
             .body(createMatchJson)
+            .header(
+                "X-Api-Token",
+                "{  \"user\" : {    \"id\" : %s,    \"username\" : \"bob\"  },  \"chat\" : {    \"id\" : 1 }}".formatted(
+                    testUserEstateId.getTelegramId())
+            )
             .when()
             .post("/api/matches")
             .then()
@@ -159,14 +185,16 @@ public class MatchControllerTest extends IntegrationTest {
     public void testUpdateMatchByLead_success(
         MatchStatus inputStatusLead,
         MatchStatus inputStatusEstate,
-        MatchStatus updateEstateStatus
+        MatchStatus updateEstateStatus,
+        MatchCommonStatus commonStatus
     ) {
         Match testMatch = testData.createTestMatch(
             testLeadId,
             testEstateId,
-            testUserLeadId,
+            testUserLeadId.getId(),
             inputStatusLead,
-            inputStatusEstate
+            inputStatusEstate,
+            MatchCommonStatus.WAIT_ESTATE
         );
 
         String updateMatchJson = String.format(
@@ -174,16 +202,20 @@ public class MatchControllerTest extends IntegrationTest {
                 {
                     "id": "%s",
                     "leadCommission": 5.5,
-                    "updatedBy": "%s",
                     "comment": "Initial match comment",
                     "status": "%s"
                 }
-                """, testMatch.getId(), testUserEstateId, updateEstateStatus.toString()
+                """, testMatch.getId(), updateEstateStatus.toString()
         );
 
         RestAssuredMockMvc.given()
             .contentType(ContentType.JSON)
             .body(updateMatchJson)
+            .header(
+                "X-Api-Token",
+                "{  \"user\" : {    \"id\" : %s,    \"username\" : \"bob\"  },  \"chat\" : {    \"id\" : 1 }}".formatted(
+                    testUserEstateId.getTelegramId())
+            )
             .when()
             .put("/api/matches")
             .then()
@@ -191,8 +223,10 @@ public class MatchControllerTest extends IntegrationTest {
             .body("leadStatus", equalTo(inputStatusLead.toString()))
             .body("estateStatus", equalTo(updateEstateStatus.toString()))
             .body("leadCommission", equalTo(5.5f))
-            .body("comment", equalTo("Initial match comment"));
+            .body("comment", equalTo("Initial match comment"))
+            .body("commonStatus", equalTo(commonStatus.toString()));
     }
+
 
     @ParameterizedTest
     @MethodSource("provideFailedMatchStatuses")
@@ -204,9 +238,10 @@ public class MatchControllerTest extends IntegrationTest {
         Match testMatch = testData.createTestMatch(
             testLeadId,
             testEstateId,
-            testUserLeadId,
+            testUserLeadId.getId(),
             inputStatusLead,
-            inputStatusEstate
+            inputStatusEstate,
+            MatchCommonStatus.WAIT_ESTATE
         );
 
         String updateMatchJson = String.format(
@@ -223,6 +258,11 @@ public class MatchControllerTest extends IntegrationTest {
 
         RestAssuredMockMvc.given()
             .contentType(ContentType.JSON)
+            .header(
+                "X-Api-Token",
+                "{  \"user\" : {    \"id\" : %s,    \"username\" : \"bob\"  },  \"chat\" : {    \"id\" : 1 }}".formatted(
+                    testUserEstateId.getTelegramId())
+            )
             .body(updateMatchJson)
             .when()
             .put("/api/matches")
@@ -232,15 +272,40 @@ public class MatchControllerTest extends IntegrationTest {
 
     private static Stream<Arguments> provideMatchStatuses() {
         return Stream.of(
-            Arguments.of(MatchStatus.LIKED, MatchStatus.UNDEFINED, MatchStatus.LIKED),
-            Arguments.of(MatchStatus.LIKED, MatchStatus.UNDEFINED, MatchStatus.DISLIKED),
-            Arguments.of(MatchStatus.LIKED, MatchStatus.UNDEFINED, MatchStatus.COMMISSION),
-            Arguments.of(MatchStatus.COMMISSION, MatchStatus.UNDEFINED, MatchStatus.COMMISSION),
-            Arguments.of(MatchStatus.COMMISSION, MatchStatus.UNDEFINED, MatchStatus.ACCEPTED),
-            Arguments.of(MatchStatus.COMMISSION, MatchStatus.UNDEFINED, MatchStatus.DECLINED),
-            Arguments.of(MatchStatus.COMMISSION, MatchStatus.COMMISSION, MatchStatus.DECLINED),
-            Arguments.of(MatchStatus.COMMISSION, MatchStatus.COMMISSION, MatchStatus.ACCEPTED),
-            Arguments.of(MatchStatus.COMMISSION, MatchStatus.COMMISSION, MatchStatus.COMMISSION)
+            Arguments.of(MatchStatus.LIKED, MatchStatus.UNDEFINED, MatchStatus.LIKED, MatchCommonStatus.SUCCESS),
+            Arguments.of(MatchStatus.LIKED, MatchStatus.UNDEFINED, MatchStatus.DISLIKED, MatchCommonStatus.FAILED),
+            Arguments.of(MatchStatus.LIKED, MatchStatus.UNDEFINED, MatchStatus.COMMISSION, MatchCommonStatus.WAIT_LEAD),
+            Arguments.of(
+                MatchStatus.COMMISSION,
+                MatchStatus.UNDEFINED,
+                MatchStatus.COMMISSION,
+                MatchCommonStatus.WAIT_LEAD
+            ),
+            Arguments.of(
+                MatchStatus.COMMISSION,
+                MatchStatus.UNDEFINED,
+                MatchStatus.ACCEPTED,
+                MatchCommonStatus.SUCCESS
+            ),
+            Arguments.of(MatchStatus.COMMISSION, MatchStatus.UNDEFINED, MatchStatus.DECLINED, MatchCommonStatus.FAILED),
+            Arguments.of(
+                MatchStatus.COMMISSION,
+                MatchStatus.COMMISSION,
+                MatchStatus.DECLINED,
+                MatchCommonStatus.FAILED
+            ),
+            Arguments.of(
+                MatchStatus.COMMISSION,
+                MatchStatus.COMMISSION,
+                MatchStatus.ACCEPTED,
+                MatchCommonStatus.SUCCESS
+            ),
+            Arguments.of(
+                MatchStatus.COMMISSION,
+                MatchStatus.COMMISSION,
+                MatchStatus.COMMISSION,
+                MatchCommonStatus.WAIT_LEAD
+            )
         );
     }
 

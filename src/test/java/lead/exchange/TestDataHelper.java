@@ -3,8 +3,9 @@ package lead.exchange;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.PrimitiveIterator.OfLong;
 import java.util.UUID;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.LongStream;
 import lead.exchange.entity.Estate;
 import lead.exchange.entity.Lead;
 import lead.exchange.entity.Match;
@@ -12,12 +13,14 @@ import lead.exchange.entity.User;
 import lead.exchange.model.EstateAttributes;
 import lead.exchange.model.EstateStatus;
 import lead.exchange.model.LeadStatus;
+import lead.exchange.model.MatchCommonStatus;
 import lead.exchange.model.MatchStatus;
 import lead.exchange.model.Requirements;
 import lead.exchange.repository.EstateRepository;
 import lead.exchange.repository.LeadRepository;
 import lead.exchange.repository.MatchRepository;
 import lead.exchange.repository.UserRepository;
+import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -39,12 +42,19 @@ public class TestDataHelper {
     @Autowired
     private MatchRepository matchRepository;
 
+    private static final OfLong iterator;
+
+
+    static {
+        iterator = LongStream.range(1000, 3000).iterator();
+    }
+
     public User createTestUser() {
         LocalDateTime now = LocalDateTime.now(clock);
 
         return userRepository.save(
                 User.builder()
-                    .telegramId(ThreadLocalRandom.current().nextLong(100))
+                    .telegramId(iterator.nextLong())
                         .createdAt(now)
                         .chatId(1l)
                         .phone("78787897878")
@@ -136,7 +146,14 @@ public class TestDataHelper {
         );
     }
 
-    public Match createTestMatch(UUID leadId, UUID estateId, UUID testUserId, MatchStatus leadStatus, MatchStatus estateStatus) {
+    public Match createTestMatch(
+        UUID leadId,
+        UUID estateId,
+        UUID testUserId,
+        MatchStatus leadStatus,
+        MatchStatus estateStatus,
+        MatchCommonStatus commonStatus
+    ) {
         LocalDateTime now = LocalDateTime.now(clock);
 
         return matchRepository.save(
@@ -150,6 +167,7 @@ public class TestDataHelper {
                 .createdAt(now)
                 .updatedAt(now)
                 .matchedAt(now)
+                .commonStatus(commonStatus)
                 .build()
         );
     }

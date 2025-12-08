@@ -31,7 +31,8 @@ public interface MatchRepository extends ListCrudRepository<Match, UUID> {
             updated_by = :#{#matchDto.updatedBy},
             comment = :#{#matchDto.comment},
             lead_status = :#{#matchDto.status.toString()},
-            updated_at = :#{#matchDto.updatedAt}
+            updated_at = :#{#matchDto.updatedAt},
+            common_status = :#{#matchDto.commonStatus.toString()}
         WHERE id = :#{#matchDto.id}
         """
     )
@@ -44,7 +45,8 @@ public interface MatchRepository extends ListCrudRepository<Match, UUID> {
             updated_by = :#{#matchDto.updatedBy},
             comment = :#{#matchDto.comment},
             estate_status = :#{#matchDto.status.toString()},
-            updated_at = :#{#matchDto.updatedAt}
+            updated_at = :#{#matchDto.updatedAt},
+            common_status = :#{#matchDto.commonStatus.toString()}
         WHERE id = :#{#matchDto.id}
         """
     )

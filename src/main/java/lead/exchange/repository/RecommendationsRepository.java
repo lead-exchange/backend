@@ -39,7 +39,7 @@ public interface RecommendationsRepository extends ListCrudRepository<Recommenda
     @Transactional
     @Query("""
     DELETE FROM recommendations
-    WHERE target_id = :targetId
+    WHERE target_id = :target_id
 """)
     void deleteAllByEstate(UUID targetId);
 
