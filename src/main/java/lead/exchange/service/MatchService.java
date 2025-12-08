@@ -18,6 +18,7 @@ import lead.exchange.exception.ForbiddenException;
 import lead.exchange.exception.ResourceAlreadyExistsException;
 import lead.exchange.exception.ResourceNotFoundException;
 import lead.exchange.mapper.MatchMapper;
+import lead.exchange.model.MatchCommonStatus;
 import lead.exchange.model.MatchStatus;
 import lead.exchange.repository.EstateRepository;
 import lead.exchange.repository.LeadRepository;
@@ -81,10 +82,22 @@ public class MatchService {
             case LEAD -> {
                 match.setLeadStatus(dto.status());
                 validateStatusTransition(match.getEstateStatus(), match.getLeadStatus());
+                MatchCommonStatus commonStatus = getCommonStatus(
+                    match.getEstateStatus(),
+                    match.getLeadStatus(),
+                    MatchCommonStatus.WAIT_ESTATE
+                );
+                match.setCommonStatus(commonStatus);
             }
             case ESTATE -> {
                 match.setEstateStatus(dto.status());
                 validateStatusTransition(match.getLeadStatus(), match.getEstateStatus());
+                MatchCommonStatus commonStatus = getCommonStatus(
+                    match.getLeadStatus(),
+                    match.getEstateStatus(),
+                    MatchCommonStatus.WAIT_LEAD
+                );
+                match.setCommonStatus(commonStatus);
             }
             default -> throw new RuntimeException("Wrong user type when create match");
         }
@@ -102,15 +115,26 @@ public class MatchService {
             .orElseThrow(() -> new ResourceNotFoundException(MATCH_WITH_THIS_ID_S_NOT_FOUND.formatted(dto.id())));
 
         UserType userType = getUserType(createdMatch.getLeadId(), createdMatch.getEstateId(), username);
-        MatchUpdateEntity toSave = mapper.toEntity(dto, username);
 
         switch (userType) {
             case LEAD -> {
                 validateStatusTransition(createdMatch.getEstateStatus(), dto.status());
+                MatchCommonStatus commonStatus = getCommonStatus(
+                    createdMatch.getEstateStatus(),
+                    dto.status(),
+                    MatchCommonStatus.WAIT_ESTATE
+                );
+                MatchUpdateEntity toSave = mapper.toEntity(dto, username, commonStatus);
                 matchRepository.updateLeadMatch(toSave);
             }
             case ESTATE -> {
                 validateStatusTransition(createdMatch.getLeadStatus(), dto.status());
+                MatchCommonStatus commonStatus = getCommonStatus(
+                    createdMatch.getLeadStatus(),
+                    dto.status(),
+                    MatchCommonStatus.WAIT_LEAD
+                );
+                MatchUpdateEntity toSave = mapper.toEntity(dto, username, commonStatus);
                 matchRepository.updateEstateMatch(toSave);
             }
             default -> throw new RuntimeException("Wrong user type when update match");
@@ -163,6 +187,19 @@ public class MatchService {
         }
     }
 
+    private MatchCommonStatus getCommonStatus(
+        MatchStatus collegeStatus,
+        MatchStatus newStatus,
+        MatchCommonStatus waitStatus
+    ) {
+        return switch (collegeStatus) {
+            case UNDEFINED -> getCommonUndefined(newStatus, waitStatus);
+            case COMMISSION -> getCommonCommission(newStatus, waitStatus);
+            case LIKED -> getCommonLiked(newStatus, waitStatus);
+            default -> throw new IllegalArgumentException();
+        };
+    }
+
     private UserType getUserType(UUID leadId, UUID estateId, UUID updatedBy) {
         UserType userType;
         if (leadRepository.findById(leadId)
@@ -182,6 +219,46 @@ public class MatchService {
         }
         return userType;
     }
+
+    private MatchCommonStatus getCommonUndefined(MatchStatus newStatus, MatchCommonStatus waitStatus) {
+        if (newStatus == MatchStatus.LIKED) {
+            return waitStatus;
+        }
+        if (newStatus == MatchStatus.COMMISSION) {
+            return waitStatus;
+        }
+        if (newStatus == MatchStatus.DISLIKED) {
+            return MatchCommonStatus.FAILED;
+        }
+        throw new IllegalArgumentException("Get common undefined status failed");
+    }
+
+    private MatchCommonStatus getCommonCommission(MatchStatus newStatus, MatchCommonStatus waitStatus) {
+        if (newStatus == MatchStatus.COMMISSION) {
+            return waitStatus;
+        }
+        if (newStatus == MatchStatus.ACCEPTED) {
+            return MatchCommonStatus.SUCCESS;
+        }
+        if (newStatus == MatchStatus.DECLINED) {
+            return MatchCommonStatus.FAILED;
+        }
+        throw new IllegalArgumentException("Get common commission status failed");
+    }
+
+    private MatchCommonStatus getCommonLiked(MatchStatus newStatus, MatchCommonStatus waitStatus) {
+        if (newStatus == MatchStatus.COMMISSION) {
+            return waitStatus;
+        }
+        if (newStatus == MatchStatus.LIKED) {
+            return MatchCommonStatus.SUCCESS;
+        }
+        if (newStatus == MatchStatus.DISLIKED) {
+            return MatchCommonStatus.FAILED;
+        }
+        throw new IllegalArgumentException("Get common liked status failed");
+    }
+
 
     private boolean isAllowedUndefinedTransition(MatchStatus newStatus) {
         return newStatus == MatchStatus.LIKED

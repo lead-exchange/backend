@@ -12,6 +12,7 @@ import lead.exchange.entity.Match;
 import lead.exchange.entity.MatchUpdateEntity;
 import lead.exchange.entity.MatchWithEstate;
 import lead.exchange.entity.MatchWithLead;
+import lead.exchange.model.MatchCommonStatus;
 import lead.exchange.model.MatchStatus;
 import lombok.RequiredArgsConstructor;
 import org.mapstruct.Mapper;
@@ -28,13 +29,14 @@ public abstract class MatchMapper {
     @Autowired
     private Clock clock;
 
-    public MatchUpdateEntity toEntity(UpdateMatchDto matchDto, UUID userId) {
+    public MatchUpdateEntity toEntity(UpdateMatchDto matchDto, UUID userId, MatchCommonStatus commonStatus) {
         LocalDateTime now = LocalDateTime.now(clock);
         return new MatchUpdateEntity(
             matchDto.id(),
             matchDto.leadCommission(),
             userId,
             matchDto.comment(),
+            commonStatus,
             matchDto.status(),
             now
         );

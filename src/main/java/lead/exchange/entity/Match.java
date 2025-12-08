@@ -3,6 +3,7 @@ package lead.exchange.entity;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
+import lead.exchange.model.MatchCommonStatus;
 import lead.exchange.model.MatchStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -42,6 +43,9 @@ public class Match {
 
     @Column("estate_status")
     private MatchStatus estateStatus;
+
+    @Column("common_status")
+    private MatchCommonStatus commonStatus;
 
     @Column("matched_at")
     private LocalDateTime matchedAt;
