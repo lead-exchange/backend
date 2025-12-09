@@ -41,6 +41,7 @@ public class MatchService {
     private final MatchMapper mapper;
     private final UserService userService;
     private final TelegramNotificationService telegramNotificationService;
+    private final ContactSharingService contactSharingService;
 
     public List<ResponseMatchWithEstateDto> getMatchesByLeadId(UUID leadId) {
         log.debug("Fetching matches by lead id: {}", leadId);
@@ -154,19 +155,31 @@ public class MatchService {
             User userEstate = userService.getUserById(estate.getUserId());
 
             telegramNotificationService.sendNotification(
-                """
-                    Поздравляем! У вас случился мэтч для лида %s с объектом %s.
-                    Высылаем вам контакты риелтора %s
-                    """.formatted(lead.getName(), estate.getAttributes().getTitle(), userEstate.getTelegramId()),
-                userLead.getTelegramId()
+                    String.format(
+                            "🎉 Поздравляем! У вас случился мэтч для лида \"%s\" с объектом \"%s\".",
+                            lead.getName(),
+                            estate.getAttributes().getTitle()
+                    ),
+                    userLead.getTelegramId()
+            );
+
+            contactSharingService.sendTelegramContact(
+                    userLead.getTelegramId(),
+                    userEstate
             );
 
             telegramNotificationService.sendNotification(
-                """
-                    Поздравляем! У вас случился мэтч для объекта %s с лидом %s.
-                    Высылаем вам контакты риелтора %s
-                    """.formatted(estate.getAttributes().getTitle(), lead.getName(), userLead.getTelegramId()),
-                userEstate.getTelegramId()
+                    String.format(
+                            "🎉 Поздравляем! У вас случился мэтч для объекта \"%s\" с лидом \"%s\".",
+                            estate.getAttributes().getTitle(),
+                            lead.getName()
+                    ),
+                    userEstate.getTelegramId()
+            );
+
+            contactSharingService.sendTelegramContact(
+                    userEstate.getTelegramId(),
+                    userLead
             );
         }
 

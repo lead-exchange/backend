@@ -5,6 +5,7 @@ import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.KeyboardButton;
 import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup;
+import com.pengrad.telegrambot.request.SendContact;
 import com.pengrad.telegrambot.request.SendMessage;
 import java.util.List;
 import java.util.Set;
@@ -51,6 +52,28 @@ public class TelegramNotificationService {
 
         // отмечаем, что уже отправили
         requestedPhone.add(chatId);
+    }
+
+    public void sendContact(Long chatId, String phoneNumber, String firstName, String lastName) {
+        try {
+            SendContact sendContact = new SendContact(chatId, phoneNumber, firstName);
+
+            if (lastName != null) {
+                sendContact.lastName(lastName);
+            }
+
+            telegramBot.execute(sendContact);
+        } catch (Exception ex) {
+            log.error("Failed to send contact to chatId: {}", chatId, ex);
+
+            String fallbackMessage = String.format(
+                    "Контакт: %s %s\nТелефон: %s",
+                    firstName,
+                    lastName != null ? lastName : "",
+                    phoneNumber
+            );
+            sendNotification(fallbackMessage, chatId);
+        }
     }
 
     private static final class MyUpdateListener implements UpdatesListener {

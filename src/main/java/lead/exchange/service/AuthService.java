@@ -34,9 +34,31 @@ public class AuthService {
             u.setChatId(tgChat != null ? tgChat.id : null);
             u.setCreatedAt(now);
             u.setUpdatedAt(now);
+            u.setTelegramUsername(tgUser.username);
+            u.setFirstName(tgUser.firstName);
+            u.setLastName(tgUser.lastName);
 
             return userService.saveUser(u);
         });
+
+        boolean updated = false;
+        if (tgUser.username != null && !tgUser.username.equals(user.getTelegramUsername())) {
+            user.setTelegramUsername(tgUser.username);
+            updated = true;
+        }
+        if (tgUser.firstName != null && !tgUser.firstName.equals(user.getFirstName())) {
+            user.setFirstName(tgUser.firstName);
+            updated = true;
+        }
+        if (tgUser.lastName != null && !tgUser.lastName.equals(user.getLastName())) {
+            user.setLastName(tgUser.lastName);
+            updated = true;
+        }
+
+        if (updated) {
+            user.setUpdatedAt(now);
+            userService.saveUser(user);
+        }
 
         return new CurrentUser(user.getId(), user.getTelegramId(), tgUser.username);
     }
