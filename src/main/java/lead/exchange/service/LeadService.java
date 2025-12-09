@@ -75,6 +75,7 @@ public class LeadService {
         Lead lead = findById(leadId);
         lead.setStatus(LeadStatus.ARCHIVE);
         lead.setUpdatedAt(LocalDateTime.now(clock));
+        recommendationAsyncService.deleteRecommendationsByLead(leadId);
         return leadRepository.save(lead);
     }
 
@@ -82,6 +83,7 @@ public class LeadService {
         Lead lead = findById(leadId);
         lead.setStatus(LeadStatus.ACTIVE);
         lead.setUpdatedAt(LocalDateTime.now(clock));
+        recommendationAsyncService.initiateRecommendationsForLead(leadId);
         return leadRepository.save(lead);
     }
 }
