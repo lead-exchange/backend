@@ -33,7 +33,10 @@ public class LeadController {
     }
 
     @GetMapping("/{leadId}")
-    public ResponseEntity<Lead> getLeadById(@PathVariable UUID leadId, @Parameter(hidden = true) CurrentUser currentUser) {
+    public ResponseEntity<Lead> getLeadById(
+        @PathVariable UUID leadId,
+        @Parameter(hidden = true) CurrentUser currentUser
+    ) {
         return ResponseEntity.ok(leadService.findById(leadId, currentUser));
     }
 
