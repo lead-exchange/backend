@@ -19,6 +19,7 @@ public class ContactSharingService {
             if (StringUtils.isBlank(contactUser.getPhone())) {
                 sendAsContact(recipientChatId, contactUser);
             } else if (StringUtils.isBlank(contactUser.getTelegramUsername())) {
+                log.warn("user with chatId {} don't have phone", recipientChatId);
                 sendAsTelegramLink(recipientChatId, contactUser);
             } else {
                 log.error("Failed to send contact to chatId: {}; user don't have phone and username", recipientChatId);
