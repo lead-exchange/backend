@@ -55,7 +55,11 @@ public class MatchService {
 
     public List<ResponseMatchWithLeadDto> getMatchesByEstateId(UUID estateId) {
         log.debug("Fetching matches by estate id: {}", estateId);
-        return matchRepository.findByEstateId(estateId).stream().map(mapper::toDto).toList();
+        return matchRepository.findByEstateId(estateId)
+            .stream()
+            .map(mapper::toDto)
+            .map(e -> e.withLeadName("Имя скрыто"))
+            .toList();
     }
 
     @Transactional
