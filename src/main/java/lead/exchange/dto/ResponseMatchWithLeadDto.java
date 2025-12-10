@@ -5,9 +5,11 @@ import java.util.UUID;
 import lead.exchange.model.MatchCommonStatus;
 import lead.exchange.model.MatchStatus;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.With;
 
+@Data
 @With
 @AllArgsConstructor
 @NoArgsConstructor
