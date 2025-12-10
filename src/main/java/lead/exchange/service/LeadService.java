@@ -11,6 +11,7 @@ import lead.exchange.exception.ResourceNotFoundException;
 import lead.exchange.mapper.LeadMapper;
 import lead.exchange.model.LeadStatus;
 import lead.exchange.repository.LeadRepository;
+import lead.exchange.security.models.CurrentUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -29,10 +30,12 @@ public class LeadService {
         return leadRepository.findByUserId(userId);
     }
 
-    public Lead findById(UUID leadId) {
-        return leadRepository.findById(leadId).orElseThrow(
-                () -> new ResourceNotFoundException("Lead not found with id: " + leadId)
-        );
+    public Lead findById(UUID leadId, CurrentUser currentUser) {
+        Lead lead = findById(leadId);
+        if (!lead.getUserId().equals(currentUser.getId())) {
+            lead.setName("Имя скрыто");
+        }
+        return lead;
     }
 
     public Lead createLead(LeadCreateDto lead, UUID id) {
@@ -64,6 +67,11 @@ public class LeadService {
         recommendationAsyncService.recalcForLead(updated.getId());
 
         return updated;
+    }
+
+    private Lead findById(UUID leadId) {
+        return leadRepository.findById(leadId).orElseThrow(
+            () -> new ResourceNotFoundException("Lead not found with id: " + leadId));
     }
 
     public void deleteLead(UUID leadId) {
