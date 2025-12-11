@@ -34,6 +34,12 @@ public class User {
     private Boolean offer1Signed;
     @Column("offer2_signed")
     private Boolean offer2Signed;
+    @Column("telegram_username")
+    private String telegramUsername;
+    @Column("first_name")
+    private String firstName;
+    @Column("last_name")
+    private String lastName;
 
     public static class UserBuilder {
 
