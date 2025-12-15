@@ -11,13 +11,21 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class Requirements {
-    // TODO: это примеры полей, конкретные поля нужно указать при реализации логики /create для лида
+
     private String propertyType;
     private String description;
+
     private Double minPrice;
     private Double maxPrice;
+
     private Integer minArea;
     private Integer maxArea;
+
+    private Integer minKitchenArea;
+    private Integer maxKitchenArea;
+
+    private RenovationType renovation;
+
     private List<String> locations;
     private Integer bedrooms;
 }
