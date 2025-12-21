@@ -41,7 +41,7 @@ public class EstateAttributes {
         private String coordinates;
         private String regionName;
         private String regionType;
-        private String countyName;
+        private Object countyName;
         private String cityName;
         private String placeName;
         private String placeType;
