@@ -51,7 +51,7 @@ public class EstateAttributes {
         private String corpus;
         private String litera;
         private String building;
-        private String metro;
+        private Object metro;
         private String flat;
     }
 }
