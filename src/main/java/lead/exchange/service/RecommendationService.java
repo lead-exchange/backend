@@ -107,6 +107,7 @@ public class RecommendationService {
                 if (score.score() == 0) {
                     continue;
                 }
+
                 Recommendation rec = new Recommendation();
                 rec.setSourceId(lead.getId());
                 rec.setSourceType(LEAD);
@@ -259,11 +260,11 @@ public class RecommendationService {
     private String extractEstateCity(EstateAttributes.Address address) {
         if (address == null) return null;
 
-        if (!StringUtils.isEmpty(address.getCityName().toString())) {
-            return normalizeLocationString(address.getCityName().toString());
+        if (!StringUtils.isEmpty(address.getCityName())) {
+            return normalizeLocationString(address.getCityName());
         }
-        if (!StringUtils.isEmpty(address.getPlaceName().toString())) {
-            return normalizeLocationString(address.getPlaceName().toString());
+        if (!StringUtils.isEmpty(address.getPlaceName())) {
+            return normalizeLocationString(address.getPlaceName());
         }
         if (!StringUtils.isEmpty(address.getRegionName())) {
             return normalizeLocationString(address.getRegionName());
