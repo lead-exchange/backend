@@ -16,21 +16,33 @@ import lead.exchange.repository.EstateRepository;
 import lead.exchange.repository.LeadRepository;
 import lead.exchange.repository.RecommendationsRepository;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 @Service
 @RequiredArgsConstructor
 public class RecommendationService {
+
+    private static final Map<String, String> CITY_SYNONYMS = Map.of(
+            "мск", "москва",
+            "msk", "москва",
+            "москва з", "москва",
+            "москва зао", "москва",
+            "москва цао", "москва",
+            "московская", "москва",
+            "центр питера", "санкт петербург",
+            "питер", "санкт петербург"
+    );
+
     private static final double BEDROOM_SCORE_CONST = 3.0;
     private static final double PERCENT = 100.0;
-    private final static double W_TYPE = 0.1;
-    private final static double W_PRICE = 0.35;
-    private final static double W_AREA = 0.25;
-    private final static double W_LOCATION = 0.2;
-    private final static double W_BEDROOMS = 0.1;
-    private final static double W_COMMISSION = 0.15;
-    private final static double W_VECTOR_SIMILARITY = 0.15;
+    private final static double W_PRICE = 3;
+    private final static double W_AREA = 2.5;
+    private final static double W_KITCHEN_AREA = 1.5;
+    private final static double W_BEDROOMS = 1;
+    private final static double W_COMMISSION = 1.5;
+    private final static double W_VECTOR_SIMILARITY = 1.5;
 
     private final static int HARD_LIMIT = 10;
     public static final String LEAD = "lead";
@@ -92,6 +104,9 @@ public class RecommendationService {
                 }
                 ScoreCalculationResult score = calculateSimilarityScore(lead, estate);
 
+                if (score.score() == 0) {
+                    continue;
+                }
                 Recommendation rec = new Recommendation();
                 rec.setSourceId(lead.getId());
                 rec.setSourceType(LEAD);
@@ -161,10 +176,20 @@ public class RecommendationService {
         double score = 0.0;
         double totalWeight = 0.0;
 
+        Requirements req = lead.getRequirements();
+        EstateAttributes attrs = estate.getAttributes();
+
+        HardMatchResult hardMatchResult = checkHardConstraints(req, attrs);
+
+        if (hardMatchResult.score == 0) {
+            return new ScoreCalculationResult(0, !hardMatchResult.typeMatch ? "non-matched types" : "non-matched locations");
+        }
+
         List<AttributeResult> results = List.of(
-                calcPriceScore(lead, estate),
-                calcAreaScore(lead, estate),
-                calcBedroomScore(lead, estate),
+                calcPriceScore(req, attrs),
+                calcAreaScore(req, attrs),
+                calcBedroomScore(req, attrs),
+                calcKitchenAreaScore(req, attrs),
                 calcCommissionScore(lead, estate),
                 calcEmbeddingScore(lead, estate)
         );
@@ -186,12 +211,67 @@ public class RecommendationService {
                 ? Math.round((score / totalWeight) * PERCENT) / PERCENT
                 : 0.0;
 
+        normalized *= hardMatchResult.locationMatch;
+
         return new ScoreCalculationResult(normalized, maxAttribute);
     }
 
-    private AttributeResult calcAreaScore(Lead lead, Estate estate) {
-        Requirements req = lead.getRequirements();
-        EstateAttributes attrs = estate.getAttributes();
+    private HardMatchResult checkHardConstraints(Requirements req, EstateAttributes attrs) {
+        boolean typeMatch = req.getPropertyType() == null || attrs.getRealtyType() == null ||
+                req.getPropertyType().equals(attrs.getRealtyType());
+
+        double locationMatch = locationMatch(req.getLocations(), attrs.getAddress());
+
+        double hardScore;
+        if (!typeMatch) {
+            hardScore = 0.0;
+        } else {
+            hardScore = locationMatch;
+        }
+
+        return new HardMatchResult(typeMatch, locationMatch, hardScore);
+    }
+
+    private double locationMatch(List<String> locations, EstateAttributes.Address address) {
+        locations.forEach(this::normalizeLocationString);
+        String estateCity = extractEstateCity(address);
+
+        if (estateCity == null || CollectionUtils.isEmpty(locations)) {
+            return 0.5; // неизвестно — нейтрально
+        }
+
+        if (locations.contains(estateCity)) {
+            return 1.0;
+        }
+        return 0;
+    }
+
+    private String normalizeLocationString(String s) {
+        if (s == null) return null;
+
+        s =  s.toLowerCase()
+                .replaceAll("[^а-яa-z0-9 ]", " ")
+                .replaceAll("\\s+", " ")
+                .trim();
+        return CITY_SYNONYMS.getOrDefault(s, s);
+    }
+
+    private String extractEstateCity(EstateAttributes.Address address) {
+        if (address == null) return null;
+
+        if (!StringUtils.isEmpty(address.getCityName().toString())) {
+            return normalizeLocationString(address.getCityName().toString());
+        }
+        if (!StringUtils.isEmpty(address.getPlaceName().toString())) {
+            return normalizeLocationString(address.getPlaceName().toString());
+        }
+        if (!StringUtils.isEmpty(address.getRegionName())) {
+            return normalizeLocationString(address.getRegionName());
+        }
+        return null;
+    }
+
+    private AttributeResult calcAreaScore(Requirements req, EstateAttributes attrs) {
 
         if (req.getMinArea() == null || req.getMaxArea() == null || attrs.getAreaCommon() == null) {
             return AttributeResult.empty();
@@ -206,10 +286,22 @@ public class RecommendationService {
         return new AttributeResult(W_AREA, score, "area");
     }
 
-    private AttributeResult calcPriceScore(Lead lead, Estate estate) {
-        Requirements req = lead.getRequirements();
-        EstateAttributes attrs = estate.getAttributes();
+    private AttributeResult calcKitchenAreaScore(Requirements req, EstateAttributes attrs) {
 
+        if (req.getMinKitchenArea() == null || req.getMaxKitchenArea() == null || attrs.getAreaKitchen() == null) {
+            return AttributeResult.empty();
+        }
+
+        double avg = (req.getMinKitchenArea() + req.getMaxKitchenArea()) / 2.0;
+        double range = req.getMaxKitchenArea() - req.getMinKitchenArea();
+        double diff = Math.abs(attrs.getAreaKitchen() - avg);
+        double factor = 1.0 - Math.min(diff / range, 1.0);
+
+        double score = W_KITCHEN_AREA * factor;
+        return new AttributeResult(W_AREA, score, "area");
+    }
+
+    private AttributeResult calcPriceScore(Requirements req, EstateAttributes attrs) {
         if (req.getMinPrice() == null || req.getMaxPrice() == null || attrs.getPrice() == null) {
             return AttributeResult.empty();
         }
@@ -223,10 +315,7 @@ public class RecommendationService {
         return new AttributeResult(W_PRICE, score, "price");
     }
 
-    private AttributeResult calcBedroomScore(Lead lead, Estate estate) {
-        Requirements req = lead.getRequirements();
-        EstateAttributes attrs = estate.getAttributes();
-
+    private AttributeResult calcBedroomScore(Requirements req, EstateAttributes attrs) {
         if (req.getBedrooms() == null || attrs.getRooms() == null) {
             return AttributeResult.empty();
         }
@@ -260,8 +349,8 @@ public class RecommendationService {
 
     private AttributeResult calcEmbeddingScore(Lead lead, Estate estate) {
         try {
-            Double similarity = embeddingService.compareObjectsDescription(lead, estate);
-            if (similarity == null) {
+            double similarity = embeddingService.compareObjectsDescription(lead, estate);
+            if (similarity == -1) {
                 return AttributeResult.empty();
             }
 
@@ -271,6 +360,9 @@ public class RecommendationService {
             System.err.println("Embedding compare failed: " + ex.getMessage());
             return AttributeResult.empty();
         }
+    }
+
+    record HardMatchResult(boolean typeMatch, double locationMatch, double score) {
     }
 
     private record AttributeResult(double weight, double score, String attributeName) {
