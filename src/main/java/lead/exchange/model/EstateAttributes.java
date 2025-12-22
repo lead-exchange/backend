@@ -42,15 +42,15 @@ public class EstateAttributes {
         private String regionName;
         private String regionType;
         private Object countyName;
-        private Object cityName;
-        private Object placeName;
-        private Object placeType;
-        private Object streetName;
-        private Object streetType;
+        private String cityName;
+        private String placeName;
+        private String placeType;
+        private String streetName;
+        private String streetType;
         private String house;
-        private Object corpus;
-        private Object litera;
-        private Object building;
+        private String corpus;
+        private String litera;
+        private String building;
         private Object metro;
         private String flat;
     }

@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - fix/add-new-lead-parameters
+      - feature/address-to-recos
 
 jobs:
   deploy:

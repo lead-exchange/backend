@@ -39,15 +39,15 @@ public interface RecommendationsRepository extends ListCrudRepository<Recommenda
     @Transactional
     @Query("""
     DELETE FROM recommendations
-    WHERE target_id = :target_id
+    WHERE target_id = :id
 """)
-    void deleteAllByEstate(UUID targetId);
+    void deleteAllByEstate(UUID id);
 
     @Modifying
     @Transactional
     @Query("""
     DELETE FROM recommendations
-    WHERE source_id = :source_id
+    WHERE source_id = :id
 """)
-    void deleteAllByLead(UUID sourceId);
+    void deleteAllByLead(UUID id);
 }
