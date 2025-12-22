@@ -19,7 +19,7 @@ public class SecurityConfig {
     @Value("${telegram.bot.token}")
     private String botToken;
 
-    @Value("${tma.auth.max-age-seconds:300}")
+    @Value("${tma.auth.max-age-seconds:86400}")
     private long maxAgeSeconds;
 
     @Value("${tma.auth.public-paths:/swagger-ui,/v3/api-docs}")
