@@ -234,7 +234,7 @@ public class RecommendationService {
     }
 
     private double locationMatch(List<String> locations, EstateAttributes.Address address) {
-        locations.forEach(this::normalizeLocationString);
+        locations = locations.stream().map(this::normalizeLocationString).toList();
         String estateCity = extractEstateCity(address);
 
         if (estateCity == null || CollectionUtils.isEmpty(locations)) {
