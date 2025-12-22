@@ -104,7 +104,7 @@ public class RecommendationService {
                 }
                 ScoreCalculationResult score = calculateSimilarityScore(lead, estate);
 
-                if (score.score() == 0) {
+                if (score.score() <= 0.0) {
                     continue;
                 }
 
