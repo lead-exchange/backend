@@ -129,7 +129,10 @@ public class RecommendationService {
         List<Estate> estates = estateRepository.findEstatesFromOtherUsers(lead.getUserId());
 
         for (Estate estate : estates) {
-            recommendationRepository.save(createRecommendationEntity(lead, estate));
+            Recommendation recommendation = createRecommendationEntity(lead, estate);
+            if (recommendation != null) {
+                recommendationRepository.save(recommendation);
+            }
         }
     }
 
@@ -157,7 +160,10 @@ public class RecommendationService {
         List<Lead> leads = leadRepository.findLeadsFromOtherUsers(estate.getUserId());
 
         for (Lead lead : leads) {
-            recommendationRepository.save(createRecommendationEntity(lead, estate));
+            Recommendation recommendation = createRecommendationEntity(lead, estate);
+            if (recommendation != null) {
+                recommendationRepository.save(recommendation);
+            }
         }
     }
 
@@ -167,7 +173,15 @@ public class RecommendationService {
         rec.setSourceType(LEAD);
         rec.setTargetId(estate.getId());
 
+        if (lead.getUserId().equals(estate.getUserId())) {
+            return null;
+        }
+
         ScoreCalculationResult score = calculateSimilarityScore(lead, estate);
+
+        if (score.score() == 0.0) {
+            return null;
+        }
         rec.setScore(score.score());
         rec.setReason(score.reason());
         return rec;
