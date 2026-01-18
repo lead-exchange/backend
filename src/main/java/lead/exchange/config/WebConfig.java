@@ -3,6 +3,7 @@ package lead.exchange.config;
 import java.util.List;
 import lead.exchange.security.CurrentUserArgumentResolver;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -11,6 +12,15 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebConfig {
+    @Bean
+    public FilterRegistrationBean<RequestIdFilter> requestIdFilter() {
+        FilterRegistrationBean<RequestIdFilter> bean = new FilterRegistrationBean<>();
+        bean.setFilter(new RequestIdFilter());
+        bean.addUrlPatterns("/*");
+        bean.setOrder(0); // раньше security
+        return bean;
+    }
+
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {

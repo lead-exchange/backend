@@ -10,6 +10,7 @@ import lead.exchange.entity.Lead;
 import lead.exchange.exception.ResourceNotFoundException;
 import lead.exchange.mapper.LeadMapper;
 import lead.exchange.model.LeadStatus;
+import lead.exchange.model.Requirements;
 import lead.exchange.repository.LeadRepository;
 import lead.exchange.security.models.CurrentUser;
 import lombok.RequiredArgsConstructor;
@@ -39,8 +40,11 @@ public class LeadService {
     }
 
     public Lead createLead(LeadCreateDto lead, UUID id) {
-        userService.getUserById(id);
         Lead toSave = leadMapper.toEntity(lead);
+
+        if (lead.requirements() == null) {
+            toSave.setRequirements(new Requirements());
+        }
 
         toSave.setStatus(LeadStatus.ACTIVE);
         toSave.setUserId(id);

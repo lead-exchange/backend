@@ -24,7 +24,7 @@ public class Requirements {
     private Integer minKitchenArea;
     private Integer maxKitchenArea;
 
-    private RenovationType renovation;
+    private RenovationType renovation = RenovationType.ANY;
 
     private List<String> locations;
     private Integer bedrooms;
