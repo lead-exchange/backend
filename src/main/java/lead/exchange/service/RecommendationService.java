@@ -197,7 +197,10 @@ public class RecommendationService {
         HardMatchResult hardMatchResult = checkHardConstraints(req, attrs);
 
         if (hardMatchResult.score == 0) {
-            return new ScoreCalculationResult(0, !hardMatchResult.typeMatch ? "non-matched types" : "non-matched locations");
+            return new ScoreCalculationResult(
+                    0,
+                    !hardMatchResult.typeMatch ? "non-matched types" : "non-matched locations"
+            );
         }
 
         List<AttributeResult> results = List.of(
@@ -232,8 +235,9 @@ public class RecommendationService {
     }
 
     private HardMatchResult checkHardConstraints(Requirements req, EstateAttributes attrs) {
-        boolean typeMatch = req.getPropertyType() == null || attrs.getRealtyType() == null ||
-                req.getPropertyType().equals(attrs.getRealtyType());
+        boolean typeMatch = req.getPropertyType() == null
+                || attrs.getRealtyType() == null
+                || req.getPropertyType().equals(attrs.getRealtyType());
 
         double locationMatch = locationMatch(req.getLocations(), attrs.getAddress());
 
@@ -248,31 +252,35 @@ public class RecommendationService {
     }
 
     private double locationMatch(List<String> locations, EstateAttributes.Address address) {
-        locations = locations.stream().map(this::normalizeLocationString).toList();
+        List<String> normalizedLocations = locations.stream().map(this::normalizeLocationString).toList();
         String estateCity = extractEstateCity(address);
 
-        if (estateCity == null || CollectionUtils.isEmpty(locations)) {
+        if (estateCity == null || CollectionUtils.isEmpty(normalizedLocations)) {
             return 0.5; // неизвестно — нейтрально
         }
 
-        if (locations.contains(estateCity)) {
+        if (normalizedLocations.contains(estateCity)) {
             return 1.0;
         }
         return 0;
     }
 
-    private String normalizeLocationString(String s) {
-        if (s == null) return null;
+    private String normalizeLocationString(String location) {
+        if (location == null) {
+            return null;
+        }
 
-        s =  s.toLowerCase()
+        String normalizedLocation = location.toLowerCase()
                 .replaceAll("[^а-яa-z0-9 ]", " ")
                 .replaceAll("\\s+", " ")
                 .trim();
-        return CITY_SYNONYMS.getOrDefault(s, s);
+        return CITY_SYNONYMS.getOrDefault(normalizedLocation, normalizedLocation);
     }
 
     private String extractEstateCity(EstateAttributes.Address address) {
-        if (address == null) return null;
+        if (address == null) {
+            return null;
+        }
 
         if (!StringUtils.isEmpty(address.getCityName())) {
             return normalizeLocationString(address.getCityName());
